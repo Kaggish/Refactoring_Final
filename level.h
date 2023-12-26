@@ -4,7 +4,7 @@
 #include <fstream>
 
 
-struct Entity
+struct Entity //TODO: Never Used, should delete
 {
 	float x, y;
 

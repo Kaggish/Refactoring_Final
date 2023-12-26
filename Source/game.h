@@ -4,15 +4,17 @@
 #include "Resources.h"
 #include <string>
 
+//TODO: Remove redundant comments
 
-enum struct State
+
+enum struct State //TODO: Renaming for clarity and better naming
 {
-	STARTSCREEN,
-	GAMEPLAY,
+	MENU,
+	RUNNING,
 	ENDSCREEN
 };
 
-enum struct EntityType
+enum struct EntityType //TODO: Move somewhere else so that it used by all objects that need this
 {
 	PLAYER,
 	ENEMY,
@@ -20,13 +22,13 @@ enum struct EntityType
 	ENEMY_PROJECTILE
 };
 
-struct PlayerData
+struct PlayerData //TODO: Make a score class that keeps track of score and name
 {
-	std::string name;
+	std::string name; //TODO: Initialize variables that are declared
 	int score;
 };
 
-struct Player
+struct Player //TODO: Make into its own class
 {
 public:
 
@@ -35,20 +37,20 @@ public:
 	float player_base_height = 70.0f;  
 	float radius = 50;
 	int lives = 3;
-	int direction = 0;
+	int direction = 0; //We don´t need direction really we are moving only in the X-axis
 	int activeTexture = 0;
 	float timer = 0;
 
 	EntityType type = EntityType::PLAYER;
 
-	void Initialize();
+	void Initialize(); //Make into a constructor
 	void Render(Texture2D texture);
 	void Update();
 	
 };
 
 
-struct Projectile
+struct Projectile //TODO: Make into its own class
 {
 public: 
 	// INITIALIZE PROJECTILE WHILE DEFINING IF ITS PLAYER OR ENEMY 
@@ -66,10 +68,10 @@ public:
 	void Render(Texture2D texture);
 };
 
-struct Wall 
+struct Wall //TODO: Make into its own class
 {
 public: 
-	Vector2 position; 
+	Vector2 position; //TODO: Initialize variables that are declared
 	Rectangle rec; 
 	bool active; 
 	Color color; 
@@ -81,7 +83,7 @@ public:
 	void Update(); 
 };
 
-struct Alien
+struct Alien //TODO: Make into its own class
 {
 public:
 	
@@ -102,7 +104,7 @@ public:
 };
 
 
-struct Star
+struct Star //TODO: Make into its own class
 {
 	Vector2 initPosition = { 0, 0 };
 	Vector2 position = { 0, 0 };
@@ -112,25 +114,25 @@ struct Star
 	void Render();
 };
 
-struct Background
+struct Background //TODO: Make into its own class
 {
 	
 
 	std::vector<Star> Stars;
 
-	void Initialize(int starAmount);
+	void Initialize(int starAmount); //TODO: Make a constructor
 	void Update(float offset);
 	void Render();
 
 };
 
-struct Game
+struct Game //Make it into a class
 {
 	// Gamestate
 	State gameState = {};
 
 	// Score
-	int score;
+	int score; //TODO: Initialize variables that are declared
 
 	// for later, make a file where you can adjust the number of walls (config file) 
 	int wallCount = 5;
@@ -154,7 +156,7 @@ struct Game
 	void End();
 
 	void Continue();
-	void Launch();
+	void Launch(); //TODO: Better naming
 
 	void Update();
 	void Render();
@@ -188,7 +190,7 @@ struct Game
 
 
 
-	Vector2 playerPos;
+	Vector2 playerPos; //TODO: Initialize variables that are declared
 	Vector2 alienPos; 
 	Vector2 cornerPos;
 	float offset;
@@ -196,7 +198,8 @@ struct Game
 
 
 	//TEXTBOX ENTER
-	char name[9 + 1] = "\0";      //One extra space required for null terminator char '\0'
+	char name[9 + 1] = "\0"; //TODO: Use string not char
+	//One extra space required for null terminator char '\0'
 	int letterCount = 0;
 
 	Rectangle textBox = { 600, 500, 225, 50 };

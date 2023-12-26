@@ -5,16 +5,21 @@
 #include <thread>
 #include <fstream>
 
+//TODO: Move first to its own classes, will make it less overwhelming and easier to
+//TODO: Make textures smaller
+
 
 // MATH FUNCTIONS
-float lineLength(Vector2 A, Vector2 B) //Uses pythagoras to calculate the length of a line
+float lineLength(Vector2 A, Vector2 B) //TODO: Make into a helper function
+//Uses pythagoras to calculate the length of a line
 {
 	float length = sqrtf(pow(B.x - A.x, 2) + pow(B.y - A.y, 2));
 
 	return length;
 }
 
-bool pointInCircle(Vector2 circlePos, float radius, Vector2 point) // Uses pythagoras to calculate if a point is within a circle or not
+bool pointInCircle(Vector2 circlePos, float radius, Vector2 point) //TODO: Make into a helper function
+// Uses pythagoras to calculate if a point is within a circle or not
 {
 	float distanceToCentre = lineLength(circlePos, point);
 
@@ -37,7 +42,7 @@ void Game::Start()
 	float wall_distance = window_width / (wallCount + 1); 
 	for (int i = 0; i < wallCount; i++)
 	{
-		Wall newWalls;
+		Wall newWalls; //TODO: Remove two-step initialization
 		newWalls.position.y = window_height - 250; 
 		newWalls.position.x = wall_distance * (i + 1); 
 
@@ -47,7 +52,7 @@ void Game::Start()
 
 
 	//creating player
-	Player newPlayer;
+	Player newPlayer; //TODO: Remove two-step initialization
 	player = newPlayer;
 	player.Initialize();
 
@@ -56,14 +61,14 @@ void Game::Start()
 	
 
 	//creating background
-	Background newBackground;
+	Background newBackground; //TODO: Remove two-step initialization
 	newBackground.Initialize(600);
 	background = newBackground;
 
 	//reset score
 	score = 0;
 
-	gameState = State::GAMEPLAY;
+	gameState = State::RUNNING;
 
 }
 
@@ -80,7 +85,7 @@ void Game::End()
 void Game::Continue()
 {
 	SaveLeaderboard();
-	gameState = State::STARTSCREEN;
+	gameState = State::MENU;
 }
 
 void Game::Launch()
@@ -93,7 +98,7 @@ void Game::Update()
 {
 	switch (gameState)
 	{
-	case State::STARTSCREEN:
+	case State::MENU:
 		//Code 
 		if (IsKeyReleased(KEY_SPACE))
 		{
@@ -103,7 +108,7 @@ void Game::Update()
 		}
 
 		break;
-	case State::GAMEPLAY:
+	case State::RUNNING:
 		//Code
 		if (IsKeyReleased(KEY_Q))
 		{
@@ -114,7 +119,7 @@ void Game::Update()
 		player.Update();
 		
 		//Update Aliens and Check if they are past player
-		for (int i = 0; i < Aliens.size(); i++)
+		for (int i = 0; i < Aliens.size(); i++) //TODO: Make into a for each
 		{
 			Aliens[i].Update(); 
 
@@ -138,29 +143,29 @@ void Game::Update()
 
 
 		// Update background with offset
-		playerPos = { player.x_pos, (float)player.player_base_height };
+		playerPos = { player.x_pos, (float)player.player_base_height }; //Make a get function?
 		cornerPos = { 0, (float)player.player_base_height };
 		offset = lineLength(playerPos, cornerPos) * -1;
 		background.Update(offset / 15);
 
 
 		//UPDATE PROJECTILE
-		for (int i = 0; i < Projectiles.size(); i++)
+		for (int i = 0; i < Projectiles.size(); i++) //TODO: Make into a for each
 		{
 			Projectiles[i].Update();
 		}
 		//UPDATE PROJECTILE
-		for (int i = 0; i < Walls.size(); i++)
+		for (int i = 0; i < Walls.size(); i++) //TODO: Make into a for each
 		{
 			Walls[i].Update();
 		}
 
 		//CHECK ALL COLLISONS HERE
-		for (int i = 0; i < Projectiles.size(); i++)
+		for (int i = 0; i < Projectiles.size(); i++) //TODO: Make into a for each
 		{
 			if (Projectiles[i].type == EntityType::PLAYER_PROJECTILE)
 			{
-				for (int a = 0; a < Aliens.size(); a++)
+				for (int a = 0; a < Aliens.size(); a++) //TODO: Make into a for each
 				{
 					if (CheckCollision(Aliens[a].position, Aliens[a].radius, Projectiles[i].lineStart, Projectiles[i].lineEnd))
 					{
@@ -175,7 +180,7 @@ void Game::Update()
 			}
 
 			//ENEMY PROJECTILES HERE
-			for (int i = 0; i < Projectiles.size(); i++)
+			for (int i = 0; i < Projectiles.size(); i++) //TODO: Make into a for each
 			{
 				if (Projectiles[i].type == EntityType::ENEMY_PROJECTILE)
 				{
@@ -189,7 +194,7 @@ void Game::Update()
 			}
 
 
-			for (int b = 0; b < Walls.size(); b++)
+			for (int b = 0; b < Walls.size(); b++) //TODO: Make into a for each
 			{
 				if (CheckCollision(Walls[b].position, Walls[b].radius, Projectiles[i].lineStart, Projectiles[i].lineEnd))
 				{
@@ -206,7 +211,7 @@ void Game::Update()
 		if (IsKeyPressed(KEY_SPACE))
 		{
 			float window_height = (float)GetScreenHeight();
-			Projectile newProjectile;
+			Projectile newProjectile; //TODO: Remove two-step initialization
 			newProjectile.position.x = player.x_pos;
 			newProjectile.position.y = window_height - 130;
 			newProjectile.type = EntityType::PLAYER_PROJECTILE;
@@ -224,7 +229,7 @@ void Game::Update()
 				randomAlienIndex = rand() % Aliens.size();
 			}
 
-			Projectile newProjectile;
+			Projectile newProjectile; //TODO: Remove two-step initialization
 			newProjectile.position = Aliens[randomAlienIndex].position;
 			newProjectile.position.y += 40;
 			newProjectile.speed = -15;
@@ -234,7 +239,7 @@ void Game::Update()
 		}
 
 		// REMOVE INACTIVE/DEAD ENITITIES
-		for (int i = 0; i < Projectiles.size(); i++)
+		for (int i = 0; i < Projectiles.size(); i++) //TODO: Make into a for each or find a range loop
 		{
 			if (Projectiles[i].active == false)
 			{
@@ -244,7 +249,7 @@ void Game::Update()
 				i--;
 			}
 		}
-		for (int i = 0; i < Aliens.size(); i++)
+		for (int i = 0; i < Aliens.size(); i++) // TODO: Make into a for each
 		{
 			if (Aliens[i].active == false)
 			{
@@ -252,7 +257,7 @@ void Game::Update()
 				i--;
 			}
 		}
-		for (int i = 0; i < Walls.size(); i++)
+		for (int i = 0; i < Walls.size(); i++) // TODO: Make into a for each
 		{
 			if (Walls[i].active == false)
 			{
@@ -287,7 +292,7 @@ void Game::Update()
 				SetMouseCursor(MOUSE_CURSOR_IBEAM);
 
 				// Get char pressed on the queue
-				int key = GetCharPressed();
+				int key = GetCharPressed(); //TODO: Lets use the raylib keybindings
 
 				// Check if more characters have been pressed on the same frame
 				while (key > 0)
@@ -350,7 +355,7 @@ void Game::Render()
 {
 	switch (gameState)
 	{
-	case State::STARTSCREEN:
+	case State::MENU:
 		//Code
 		DrawText("SPACE INVADERS", 200, 100, 160, YELLOW);
 
@@ -358,7 +363,7 @@ void Game::Render()
 
 
 		break;
-	case State::GAMEPLAY:
+	case State::RUNNING:
 		//Code
 
 
@@ -486,7 +491,7 @@ void Game::SpawnAliens()
 {
 	for (int row = 0; row < formationHeight; row++) {
 		for (int col = 0; col < formationWidth; col++) {
-			Alien newAlien = Alien();
+			Alien newAlien = Alien(); //TODO: remove two-step initialization
 			newAlien.active = true;
 			newAlien.position.x = formationX + 450 + (col * alienSpacing);
 			newAlien.position.y = formationY + (row * alienSpacing);
@@ -529,7 +534,7 @@ void Game::InsertNewHighScore(std::string name)
 	}
 }
 
-void Game::LoadLeaderboard()
+void Game::LoadLeaderboard() //TODO: Remove, it is redundant, not even used
 {
 	// CLEAR LEADERBOARD
 
@@ -542,7 +547,7 @@ void Game::LoadLeaderboard()
 	//CLOSE FILE
 }
 
-void Game::SaveLeaderboard()
+void Game::SaveLeaderboard() //TODO: Remove, it is redundant and this probably does not work
 {
 	// SAVE LEADERBOARD AS ARRAY
 
@@ -846,9 +851,9 @@ void Star::Render()
 
 void Background::Initialize(int starAmount)
 {
-	for (int i = 0; i < starAmount; i++)
+	for (int i = 0; i < starAmount; i++) //TODO: make into for each
 	{
-		Star newStar;
+		Star newStar; //TODO: Remove two-step initialization
 
 		newStar.initPosition.x = GetRandomValue(-150, GetScreenWidth() + 150);
 		newStar.initPosition.y = GetRandomValue(0, GetScreenHeight());
@@ -865,7 +870,7 @@ void Background::Initialize(int starAmount)
 
 void Background::Update(float offset)
 {
-	for (int i = 0; i < Stars.size(); i++)
+	for (int i = 0; i < Stars.size(); i++) //TODO: make into for each
 	{
 		Stars[i].Update(offset);
 	}
@@ -874,67 +879,8 @@ void Background::Update(float offset)
 
 void Background::Render()
 {
-	for (int i = 0; i < Stars.size(); i++)
+	for (int i = 0; i < Stars.size(); i++) //TODO: make into for each
 	{
 		Stars[i].Render();
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*LEGACY CODE
-	// our objective is to calculate the distance between the closest point of the line to the centre of the circle,
-	// and determine if it is shorter than the radius.
-
-	// we can imagine the edges of the line and circle centre to form a triangle. calculating the height of the
-	// triangle will give us the distance, if the line serves as the base
-
-	// simplify variables
-	Vector2 A = lineStart;
-	Vector2 B = lineEnd;
-	Vector2 C = circlePos;
-
-	// calculate area using determinant method
-
-	float triangle_area = fabsf(A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y)) / 2;
-
-
-	// Caculate vectors AB to calculate base length
-	Vector2 AB;
-	AB.x = B.x - A.x;
-	AB.y = B.y - A.y;
-
-	//get the base length
-	float trangle_base_length = (float)sqrt(pow(AB.x, 2) + pow(AB.y, 2));
-
-	// we double the area to turn in into a rectangle, and then divide the base length to get the height.
-	float triangle_height = (triangle_area * 2 ) / trangle_base_length;
-
-	std::cout << triangle_area << "\n";
-
-	if (triangle_height < circleRadius)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-
-
-	*/
-
