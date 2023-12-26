@@ -4,7 +4,7 @@
 #include <string>
 #include "level.h"
 
-void LoadLevelFromFile(const std::string& filename) 
+void LoadLevelFromFile(const std::string& filename) //TODO: Never Used, should delete this
 {
 	std::ifstream file(filename); 
 
