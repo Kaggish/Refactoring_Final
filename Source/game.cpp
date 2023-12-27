@@ -1,4 +1,4 @@
-#include "game.h"
+#include "game.hpp"
 #include <iostream>
 #include <vector>
 #include <chrono>
@@ -13,7 +13,7 @@
 float lineLength(Vector2 A, Vector2 B) //TODO: Make into a helper function
 //Uses pythagoras to calculate the length of a line
 {
-	float length = sqrtf(pow(B.x - A.x, 2) + pow(B.y - A.y, 2));
+	float length = sqrtf(static_cast<float>(pow(B.x - A.x, 2) + pow(B.y - A.y, 2)));
 
 	return length;
 }
@@ -180,14 +180,14 @@ void Game::Update()
 			}
 
 			//ENEMY PROJECTILES HERE
-			for (int i = 0; i < Projectiles.size(); i++) //TODO: Make into a for each
+			for (int j = 0; j < Projectiles.size(); j++) //TODO: Make into a for each
 			{
-				if (Projectiles[i].type == EntityType::ENEMY_PROJECTILE)
+				if (Projectiles[j].type == EntityType::ENEMY_PROJECTILE)
 				{
-					if (CheckCollision({player.x_pos, GetScreenHeight() - player.player_base_height }, player.radius, Projectiles[i].lineStart, Projectiles[i].lineEnd))
+					if (CheckCollision({player.x_pos, GetScreenHeight() - player.player_base_height }, player.radius, Projectiles[j].lineStart, Projectiles[j].lineEnd))
 					{
 						std::cout << "dead!\n"; 
-						Projectiles[i].active = false; 
+						Projectiles[j].active = false; 
 						player.lives -= 1; 
 					}
 				}
@@ -471,7 +471,7 @@ void Game::Render()
 
 			for (int i = 0; i < Leaderboard.size(); i++)
 			{
-				char* tempNameDisplay = Leaderboard[i].name.data();
+				char* tempNameDisplay = Leaderboard[i].name.data(); //TODO: Use string instead of char
 				DrawText(tempNameDisplay, 50, 140 + (i * 40), 40, YELLOW);
 				DrawText(TextFormat("%i", Leaderboard[i].score), 350, 140 + (i * 40), 40, YELLOW);
 			}
@@ -493,8 +493,8 @@ void Game::SpawnAliens()
 		for (int col = 0; col < formationWidth; col++) {
 			Alien newAlien = Alien(); //TODO: remove two-step initialization
 			newAlien.active = true;
-			newAlien.position.x = formationX + 450 + (col * alienSpacing);
-			newAlien.position.y = formationY + (row * alienSpacing);
+			newAlien.position.x = static_cast<float>(formationX + 450 + (col * alienSpacing));
+			newAlien.position.y = static_cast<float>(formationY + (row * alienSpacing));
 			Aliens.push_back(newAlien);
 			std::cout << "Find Alien -X:" << newAlien.position.x << std::endl;
 			std::cout << "Find Alien -Y:" << newAlien.position.y << std::endl;
@@ -513,10 +513,10 @@ bool Game::CheckNewHighScore()
 	return false;
 }
 
-void Game::InsertNewHighScore(std::string name)
+void Game::InsertNewHighScore(std::string Name)
 {
 	PlayerData newData;
-	newData.name = name;
+	newData.name = Name;
 	newData.score = score;
 
 	for (int i = 0; i < Leaderboard.size(); i++)
@@ -528,8 +528,7 @@ void Game::InsertNewHighScore(std::string name)
 
 			Leaderboard.pop_back();
 
-			i = Leaderboard.size();
-
+			break;
 		}
 	}
 }
@@ -593,7 +592,7 @@ bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineSta
 	float length = lineLength(A, B);
 	
 	// calculate the dot product
-	float dotP = (((C.x - A.x) * (B.x - A.x)) + ((C.y - A.y) * (B.y - A.y))) / pow(length, 2);
+	float dotP = (((C.x - A.x) * (B.x - A.x)) + ((C.y - A.y) * (B.y - A.y))) / static_cast<float>(pow(length, 2));
 
 	// use dot product to find closest point
 	float closestX = A.x + (dotP * (B.x - A.x));
@@ -604,7 +603,7 @@ bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineSta
 	// if the distance of the vectors combined is the same as the length the point is on the line
 
 	//since we are using floating points, we will allow the distance to be slightly innaccurate to create a smoother collision
-	float buffer = 0.1;
+	float buffer = 0.1f;
 
 	float closeToStart = lineLength(A, { closestX, closestY }); //closestX + Y compared to line Start
 	float closeToEnd = lineLength(B, { closestX, closestY });	//closestX + Y compared to line End
@@ -692,7 +691,7 @@ void Player::Update()
 
 void Player::Render(Texture2D texture) 
 {
-	float window_height = GetScreenHeight(); 
+	float window_height = static_cast<float>(GetScreenHeight()); 
 
 	DrawTexturePro(texture,
 		{
@@ -768,7 +767,7 @@ void Wall::Render(Texture2D texture)
 		WHITE);
 
 
-	DrawText(TextFormat("%i", health), position.x-21, position.y+10, 40, RED);
+	DrawText(TextFormat("%i", health), static_cast<int>(position.x-21.0f), static_cast<int>(position.y+10.0f), 40, RED);
 	
 }
 
@@ -786,7 +785,6 @@ void Wall::Update()
 
 void Alien::Update() 
 {
-	int window_width = GetScreenWidth(); 
 
 	if (moveRight)
 	{
@@ -855,13 +853,13 @@ void Background::Initialize(int starAmount)
 	{
 		Star newStar; //TODO: Remove two-step initialization
 
-		newStar.initPosition.x = GetRandomValue(-150, GetScreenWidth() + 150);
-		newStar.initPosition.y = GetRandomValue(0, GetScreenHeight());
+		newStar.initPosition.x = static_cast<float>(GetRandomValue(-150, GetScreenWidth() + 150));
+		newStar.initPosition.y = static_cast<float>(GetRandomValue(0, GetScreenHeight()));
 		
 		//random color?
 		newStar.color = SKYBLUE;
 
-		newStar.size = GetRandomValue(1, 4) / 2;
+		newStar.size = static_cast<float>(GetRandomValue(1, 4) / 2);
 
 		Stars.push_back(newStar);
 

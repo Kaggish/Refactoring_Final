@@ -1,7 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include <vector>
-#include "Resources.h"
+#include "Resources.hpp"
 #include <string>
 
 //TODO: Remove redundant comments
@@ -76,7 +76,7 @@ public:
 	bool active; 
 	Color color; 
 	int health = 50;
-	int radius = 60;
+	float radius = 60;
 
 
 	void Render(Texture2D texture); 

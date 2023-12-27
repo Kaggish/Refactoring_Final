@@ -1,5 +1,5 @@
-#include "Resources.h"
-#include <iostream>;
+#include "Resources.hpp"
+#include <iostream>
 
 void Resources::Load()
 {

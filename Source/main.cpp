@@ -22,7 +22,7 @@
 ********************************************************************************************/
 
 #include "raylib.h"
-#include "game.h"
+#include "game.hpp"
 
 
 //------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ int main(void)
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
     Game game = { State::MENU };
-    Resources resources;
+    Resources resources; //TODO: remove two-step initialization
     game.resources = resources;
     game.Launch();
 
