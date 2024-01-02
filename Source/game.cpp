@@ -5,13 +5,9 @@
 #include <thread>
 #include <fstream>
 
-//TODO: Move first to its own classes, will make it less overwhelming and easier to
-//TODO: Make textures smaller
-
 
 // MATH FUNCTIONS
 float lineLength(Vector2 A, Vector2 B) //TODO: Make into a helper function
-//Uses pythagoras to calculate the length of a line
 {
 	float length = sqrtf(static_cast<float>(pow(B.x - A.x, 2) + pow(B.y - A.y, 2)));
 
@@ -19,7 +15,6 @@ float lineLength(Vector2 A, Vector2 B) //TODO: Make into a helper function
 }
 
 bool pointInCircle(Vector2 circlePos, float radius, Vector2 point) //TODO: Make into a helper function
-// Uses pythagoras to calculate if a point is within a circle or not
 {
 	float distanceToCentre = lineLength(circlePos, point);
 
@@ -192,16 +187,12 @@ void Game::Update()
 			{
 				if (CheckCollision(Walls[b].position, Walls[b].radius, Projectiles[i].lineStart, Projectiles[i].lineEnd))
 				{
-					// Kill!
-					std::cout << "Hit! \n";
-					// Set them as inactive, will be killed later
 					Projectiles[i].active = false;
 					Walls[b].health -= 1;
 				}
 			}
 		}
 
-		//MAKE PROJECTILE
 		if (IsKeyPressed(KEY_SPACE))
 		{
 			float window_height = (float)GetScreenHeight();
@@ -212,9 +203,8 @@ void Game::Update()
 			Projectiles.push_back(newProjectile);
 		}
 
-		//Aliens Shooting
 		shootTimer += 1;
-		if (shootTimer > 59) //once per second
+		if (shootTimer > 59)
 		{
 			int randomAlienIndex = 0;
 
@@ -238,8 +228,6 @@ void Game::Update()
 			if (Projectiles[i].active == false)
 			{
 				Projectiles.erase(Projectiles.begin() + i);
-				// Prevent the loop from skipping an instance because of index changes, since all insances after
-				// the killed objects are moved down in index. This is the same for all loops with similar function
 				i--;
 			}
 		}
@@ -288,18 +276,16 @@ void Game::Update()
 				// Get char pressed on the queue
 				int key = GetCharPressed(); //TODO: Lets use the raylib keybindings
 
-				// Check if more characters have been pressed on the same frame
 				while (key > 0)
 				{
-					// NOTE: Only allow keys in range [32..125]
 					if ((key >= 32) && (key <= 125) && (letterCount < 9))
 					{
 						name[letterCount] = (char)key;
-						name[letterCount + 1] = '\0'; // Add null terminator at the end of the string.
+						name[letterCount + 1] = '\0';
 						letterCount++;
 					}
 
-					key = GetCharPressed();  // Check next character in the queue
+					key = GetCharPressed();
 				}
 
 				//Remove chars 
@@ -321,8 +307,6 @@ void Game::Update()
 				framesCounter = 0;
 			}
 
-			// If the name is right legth and enter is pressed, exit screen by setting highscore to false and add 
-			// name + score to scoreboard
 			if (letterCount > 0 && letterCount < 9 && IsKeyReleased(KEY_ENTER))
 			{
 				std::string nameEntry(name);
@@ -339,7 +323,6 @@ void Game::Update()
 
 		break;
 	default:
-		//SHOULD NOT HAPPEN
 		break;
 	}
 }
@@ -386,33 +369,25 @@ void Game::Render()
 		{
 			DrawText("NEW HIGHSCORE!", 600, 300, 60, YELLOW);
 
-
-
-			// BELOW CODE IS FOR NAME INPUT RENDER
 			DrawText("PLACE MOUSE OVER INPUT BOX!", 600, 400, 20, YELLOW);
 
 			DrawRectangleRec(textBox, LIGHTGRAY);
 			if (mouseOnText)
 			{
-				// HOVER CONFIRMIATION
 				DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, RED);
 			}
 			else
 			{
 				DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, DARKGRAY);
 			}
-
-			//Draw the name being typed out
 			DrawText(name, (int)textBox.x + 5, (int)textBox.y + 8, 40, MAROON);
 
-			//Draw the text explaining how many characters are used
 			DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, 8), 600, 600, 20, YELLOW);
 
 			if (mouseOnText)
 			{
 				if (letterCount < 9)
 				{
-					// Draw blinking underscore char
 					if (((framesCounter / 20) % 2) == 0)
 					{
 						DrawText("_", (int)textBox.x + 8 + MeasureText(name, 40), (int)textBox.y + 12, 40, MAROON);
@@ -421,21 +396,19 @@ void Game::Render()
 				}
 				else
 				{
-					//Name needs to be shorter
 					DrawText("Press BACKSPACE to delete chars...", 600, 650, 20, YELLOW);
 				}
 				
 			}
 
-			// Explain how to continue when name is input
 			if (letterCount > 0 && letterCount < 9)
 			{
 				DrawText("PRESS ENTER TO CONTINUE", 600, 800, 40, YELLOW);
 			}
 
 		}
-		else {
-			// If no highscore or name is entered, show scoreboard and call it a day
+		else 
+		{
 			DrawText("PRESS ENTER TO CONTINUE", 600, 200, 40, YELLOW);
 
 			DrawText("LEADERBOARD", 50, 100, 40, YELLOW);
@@ -447,10 +420,6 @@ void Game::Render()
 				DrawText(TextFormat("%i", Leaderboard[i].score), 350, 140 + (i * 40), 40, YELLOW);
 			}
 		}
-
-		
-
-
 		break;
 	default:
 		//SHOULD NOT HAPPEN
@@ -565,94 +534,4 @@ bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineSta
 		return false;
 	}
 
-}
-
-void Player::Initialize() 
-{
-	float window_width = (float)GetScreenWidth();
-	x_pos = window_width / 2;
-	std::cout<< "Find Player -X:" << GetScreenWidth() / 2 << "Find Player -Y" << GetScreenHeight() - player_base_height << std::endl;
-}
-
-void Player::Update() 
-{
-	//Movement
-	direction = 0;
-	if (IsKeyDown(KEY_LEFT))
-	{
-		direction--;
-	}
-	if (IsKeyDown(KEY_RIGHT))
-	{
-		direction++;
-	}
-
-	x_pos += speed * direction;
-
-	if (x_pos < 0 + radius)
-	{
-		x_pos = 0 + radius;
-	}
-	else if (x_pos > GetScreenWidth() - radius)
-	{
-		x_pos = GetScreenWidth() - radius;
-	}
-
-
-	//Determine frame for animation
-	timer += GetFrameTime();
-
-	if (timer > 0.4 && activeTexture == 2)
-	{
-		activeTexture = 0;
-		timer = 0;
-	}
-	else if (timer > 0.4)
-	{
-		activeTexture++;
-		timer = 0;
-	}
-}
-
-void Player::Render(Texture2D texture) 
-{
-	float window_height = static_cast<float>(GetScreenHeight()); 
-	DrawTexture(texture, static_cast<int>(x_pos), static_cast<int>(window_height - player_base_height), WHITE);
-}
-
-void Projectile::Update()
-{
-	position.y -= speed;
-
-	// UPDATE LINE POSITION
-	lineStart.y = position.y - 15;
-	lineEnd.y   = position.y + 15;
-
-	lineStart.x = position.x;
-	lineEnd.x   = position.x;
-
-	if (position.y < 0 || position.y > 1500)
-	{
-		active = false;
-	}
-}
-
-void Projectile::Render(Texture2D texture)
-{
-	DrawTexture(texture, static_cast<int>(position.x), static_cast<int>(position.y), WHITE);
-}
-
-void Wall::Render(Texture2D texture)
-{
-	DrawTexture(texture, static_cast<int>(position.x), static_cast<int>(position.y), WHITE);
-	DrawText(TextFormat("%i", health), static_cast<int>(position.x + 15.0f), static_cast<int>(position.y + 50.0f), 20, RED);
-}
-
-void Wall::Update() 
-{
-	// set walls as inactive when out of health
-	if (health < 1)
-	{
-		active = false;
-	}
 }

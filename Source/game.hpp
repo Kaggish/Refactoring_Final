@@ -5,6 +5,9 @@
 #include <string>
 #include "Background.hpp"
 #include "Alien.hpp"
+#include "Player.hpp"
+#include "Projectile.hpp"
+#include "Wall.hpp"
 
 //TODO: Remove redundant comments
 enum struct State //TODO: Renaming for clarity and better naming
@@ -12,69 +15,13 @@ enum struct State //TODO: Renaming for clarity and better naming
 	MENU,
 	RUNNING,
 	ENDSCREEN
-};
+}; 
 
 struct PlayerData //TODO: Make a score class that keeps track of score and name
 {
 	std::string name; //TODO: Initialize variables that are declared
 	int score;
 };
-
-struct Player //TODO: Make into its own class
-{
-public:
-
-	float x_pos = 0;
-	float speed = 7;
-	float player_base_height = 70.0f;  
-	float radius = 50;
-	int lives = 3;
-	int direction = 0; //We don´t need direction really we are moving only in the X-axis
-	int activeTexture = 0;
-	float timer = 0;
-
-	EntityType type = EntityType::PLAYER;
-
-	void Initialize(); //Make into a constructor
-	void Render(Texture2D texture);
-	void Update();
-	
-};
-
-
-struct Projectile //TODO: Make into its own class
-{
-public: 
-	// INITIALIZE PROJECTILE WHILE DEFINING IF ITS PLAYER OR ENEMY 
-	Vector2 position = {0,0};
-	int speed = 15; 
-	bool active = true;  
-	EntityType type = {};
-
-	// LINE WILL UPDATE WITH POSITION FOR CALCULATIONS
-	Vector2 lineStart = { 0, 0 };
-	Vector2 lineEnd = { 0, 0 };
-
-	void Update();
-
-	void Render(Texture2D texture);
-};
-
-struct Wall //TODO: Make into its own class
-{
-public: 
-	Vector2 position; //TODO: Initialize variables that are declared
-	Rectangle rec; 
-	bool active; 
-	Color color; 
-	int health = 50;
-	float radius = 60;
-
-
-	void Render(Texture2D texture); 
-	void Update(); 
-};
-
 
 class Game //Make it into a class
 {
@@ -140,10 +87,7 @@ public:
 	Vector2 cornerPos;
 	float offset;
 
-
-	//TEXTBOX ENTER
 	char name[9 + 1] = "\0"; //TODO: Use string not char
-	//One extra space required for null terminator char '\0'
 	int letterCount = 0;
 
 	Rectangle textBox = { 600, 500, 225, 50 };
