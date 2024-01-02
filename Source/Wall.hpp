@@ -7,7 +7,7 @@ public:
 	Vector2 position; //TODO: Initialize variables that are declared
 	Rectangle rec;
 	bool active;
-	Color color;
+	Color COLOR;
 	int health = 50;
 	float radius = 60;
 

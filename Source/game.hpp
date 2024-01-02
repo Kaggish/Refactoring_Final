@@ -3,14 +3,12 @@
 #include <vector>
 #include "Resources.hpp"
 #include <string>
-#include "Background.hpp"
 #include "Alien.hpp"
 #include "Player.hpp"
 #include "Projectile.hpp"
 #include "Wall.hpp"
 
-//TODO: Remove redundant comments
-enum struct State //TODO: Renaming for clarity and better naming
+enum struct State
 {
 	MENU,
 	RUNNING,
@@ -30,15 +28,12 @@ public:
 	State gameState = {};
 
 	// Score
-	int score; //TODO: Initialize variables that are declared
+	int score = 0; //TODO: Initialize variables that are declared
 
-	// for later, make a file where you can adjust the number of walls (config file) 
 	int wallCount = 5;
 
-	//Aliens shooting
 	float shootTimer = 0;
 
-	//Aliens stuff? (idk cause liv wrote this)
 	Rectangle rec = { 0, 0 ,0 ,0 }; 
 
 	int formationWidth = 8;
@@ -48,13 +43,12 @@ public:
 	int formationY = 50;
 
 	bool newHighScore = false;
-	
 
 	void Start();
 	void End();
 
 	void Continue();
-	void Launch(); //TODO: Better naming
+	void Launch(); //TODO: Better naming or just remove
 
 	void Update();
 	void Render();
@@ -67,7 +61,6 @@ public:
 
 	void InsertNewHighScore(std::string name);
 
-	// Entity Storage and Resources
 	Resources resources;
 
 	Player player;
@@ -82,10 +75,10 @@ public:
 
 	Background background;
 
-	Vector2 playerPos; //TODO: Initialize variables that are declared
-	Vector2 alienPos; 
-	Vector2 cornerPos;
-	float offset;
+	Vector2 playerPos = {}; //TODO: Initialize variables that are declared
+	Vector2 alienPos = {};
+	Vector2 cornerPos = {};
+	float offset = 0;
 
 	char name[9 + 1] = "\0"; //TODO: Use string not char
 	int letterCount = 0;
@@ -94,5 +87,4 @@ public:
 	bool mouseOnText = false;
 
 	int framesCounter = 0;
-
 };

@@ -2,7 +2,7 @@
 
 void Projectile::Update()
 {
-	position.y -= speed;
+	position.y -= SPEED;
 
 	// UPDATE LINE POSITION
 	lineStart.y = position.y - 15;

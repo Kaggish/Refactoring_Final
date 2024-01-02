@@ -8,11 +8,11 @@ void Alien::Update()
 {
 	if (moveRight)
 	{
-		position.x += speed;
+		position.x += SPEED;
 	}
 	else
 	{
-		position.x -= speed;
+		position.x -= SPEED;
 	}
 
 	if (position.x >= GetScreenWidth())
@@ -29,5 +29,5 @@ void Alien::Update()
 
 void Alien::Render(Texture2D texture)
 {
-	DrawTexture(texture, static_cast<int>(position.x), static_cast<int>(position.y), color);
+	DrawTexture(texture, static_cast<int>(position.x), static_cast<int>(position.y), COLOR);
 }

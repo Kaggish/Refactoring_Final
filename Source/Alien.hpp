@@ -4,18 +4,20 @@
 
 class Alien
 {
-	static constexpr Color color = WHITE;
+	static constexpr Color COLOR = WHITE;
+	static constexpr int SPEED = 2;
+
 public:
 
 	Alien(Vector2 Position);
 	Vector2 position = { 0, 0 };
 	static constexpr float radius = 30;
+
 	bool active = true;
 	bool moveRight = true;
 
 	EntityType type = EntityType::ENEMY;
 
-	int speed = 2;
 
 	void Update();
 	void Render(Texture2D texture);

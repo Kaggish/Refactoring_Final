@@ -19,7 +19,7 @@ void Player::Update()
 		direction++;
 	}
 
-	x_pos += speed * direction;
+	x_pos += SPEED * direction;
 
 	if (x_pos < 0 + radius)
 	{

@@ -7,7 +7,7 @@ class Projectile //TODO: Make into its own class
 public:
 	// INITIALIZE PROJECTILE WHILE DEFINING IF ITS PLAYER OR ENEMY 
 	Vector2 position = { 0,0 };
-	int speed = 15;
+	int SPEED = 15;
 	bool active = true;
 	EntityType type = {};
 

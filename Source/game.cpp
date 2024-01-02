@@ -79,7 +79,6 @@ void Game::Continue()
 
 void Game::Launch()
 {
-	//LOAD SOME RESOURCES HERE
 	resources.Load();
 }
 
@@ -88,26 +87,20 @@ void Game::Update()
 	switch (gameState)
 	{
 	case State::MENU:
-		//Code 
 		if (IsKeyReleased(KEY_SPACE))
 		{
 			Start();
-
-
 		}
 
 		break;
 	case State::RUNNING:
-		//Code
 		if (IsKeyReleased(KEY_Q))
 		{
 			End();
 		}
 
-		//Update Player
 		player.Update();
 		
-		//Update Aliens and Check if they are past player
 		for (auto& aliens : Aliens) //TODO: Make into a for each
 		{
 			aliens.Update();
@@ -130,26 +123,22 @@ void Game::Update()
 			SpawnAliens();
 		}
 
-
-		// Update background with offset
 		playerPos = { player.x_pos, (float)player.player_base_height }; //Make a get function?
 		cornerPos = { 0, (float)player.player_base_height };
 		offset = lineLength(playerPos, cornerPos) * -1;
 		background.Update(offset / 15);
 
-
-		//UPDATE PROJECTILE
 		for (auto& projectile : Projectiles) //TODO: Make into a for each
 		{
 			projectile.Update();
 		}
-		//UPDATE PROJECTILE
+
 		for (auto& wall : Walls) //TODO: Make into a for each
 		{
 			wall.Update();
 		}
 
-		//CHECK ALL COLLISONS HERE
+
 		for (int i = 0; i < Projectiles.size(); i++) //TODO: Make into a for each
 		{
 			if (Projectiles[i].type == EntityType::PLAYER_PROJECTILE)
@@ -158,9 +147,6 @@ void Game::Update()
 				{
 					if (CheckCollision(Aliens[a].position, Aliens[a].radius, Projectiles[i].lineStart, Projectiles[i].lineEnd))
 					{
-						// Kill!
-						std::cout << "Hit! \n";
-						// Set them as inactive, will be killed later
 						Projectiles[i].active = false;
 						Aliens[a].active = false;
 						score += 100;
@@ -168,7 +154,6 @@ void Game::Update()
 				}
 			}
 
-			//ENEMY PROJECTILES HERE
 			for (int j = 0; j < Projectiles.size(); j++) //TODO: Make into a for each
 			{
 				if (Projectiles[j].type == EntityType::ENEMY_PROJECTILE)
@@ -216,7 +201,7 @@ void Game::Update()
 			Projectile newProjectile; //TODO: Remove two-step initialization
 			newProjectile.position = Aliens[randomAlienIndex].position;
 			newProjectile.position.y += 40;
-			newProjectile.speed = -15;
+			newProjectile.SPEED = -15;
 			newProjectile.type = EntityType::ENEMY_PROJECTILE;
 			Projectiles.push_back(newProjectile);
 			shootTimer = 0;
@@ -253,15 +238,10 @@ void Game::Update()
 
 	break;
 	case State::ENDSCREEN:
-		//Code
-	
-		//Exit endscreen
 		if (IsKeyReleased(KEY_ENTER) && !newHighScore)
 		{
 			Continue();
 		}
-
-	
 
 		if (newHighScore)
 		{
@@ -270,10 +250,8 @@ void Game::Update()
 
 			if (mouseOnText)
 			{
-				// Set the window's cursor to the I-Beam
 				SetMouseCursor(MOUSE_CURSOR_IBEAM);
 
-				// Get char pressed on the queue
 				int key = GetCharPressed(); //TODO: Lets use the raylib keybindings
 
 				while (key > 0)
@@ -288,7 +266,6 @@ void Game::Update()
 					key = GetCharPressed();
 				}
 
-				//Remove chars 
 				if (IsKeyPressed(KEY_BACKSPACE))
 				{
 					letterCount--;
@@ -315,11 +292,7 @@ void Game::Update()
 
 				newHighScore = false;
 			}
-
-
 		}
-		
-
 
 		break;
 	default:
