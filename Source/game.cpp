@@ -58,12 +58,7 @@ void Game::Start()
 
 	//creating aliens
 	SpawnAliens();
-	
-
-	//creating background
-	Background newBackground; //TODO: Remove two-step initialization
-	newBackground.Initialize(600);
-	background = newBackground;
+	background.AtStart();
 
 	//reset score
 	score = 0;
@@ -84,7 +79,6 @@ void Game::End()
 
 void Game::Continue()
 {
-	SaveLeaderboard();
 	gameState = State::MENU;
 }
 
@@ -119,11 +113,11 @@ void Game::Update()
 		player.Update();
 		
 		//Update Aliens and Check if they are past player
-		for (int i = 0; i < Aliens.size(); i++) //TODO: Make into a for each
+		for (auto& aliens : Aliens) //TODO: Make into a for each
 		{
-			Aliens[i].Update(); 
+			aliens.Update();
 
-			if (Aliens[i].position.y > GetScreenHeight() - player.player_base_height)
+			if (aliens.position.y > GetScreenHeight() - player.player_base_height)
 			{
 				End();
 			}
@@ -150,14 +144,14 @@ void Game::Update()
 
 
 		//UPDATE PROJECTILE
-		for (int i = 0; i < Projectiles.size(); i++) //TODO: Make into a for each
+		for (auto& projectile : Projectiles) //TODO: Make into a for each
 		{
-			Projectiles[i].Update();
+			projectile.Update();
 		}
 		//UPDATE PROJECTILE
-		for (int i = 0; i < Walls.size(); i++) //TODO: Make into a for each
+		for (auto& wall : Walls) //TODO: Make into a for each
 		{
-			Walls[i].Update();
+			wall.Update();
 		}
 
 		//CHECK ALL COLLISONS HERE
@@ -356,7 +350,6 @@ void Game::Render()
 	switch (gameState)
 	{
 	case State::MENU:
-		//Code
 		DrawText("SPACE INVADERS", 200, 100, 160, YELLOW);
 
 		DrawText("PRESS SPACE TO BEGIN", 200, 350, 40, YELLOW);
@@ -364,52 +357,30 @@ void Game::Render()
 
 		break;
 	case State::RUNNING:
-		//Code
-
-
-		//background render LEAVE THIS AT TOP
 		background.Render();
-
-		//DrawText("GAMEPLAY", 50, 30, 40, YELLOW);
+	
 		DrawText(TextFormat("Score: %i", score), 50, 20, 40, YELLOW);
 		DrawText(TextFormat("Lives: %i", player.lives), 50, 70, 40, YELLOW);
 
-		//player rendering 
 		player.Render(resources.shipTextures[player.activeTexture]);
 
-		//projectile rendering
 		for (int i = 0; i < Projectiles.size(); i++)
 		{
 			Projectiles[i].Render(resources.laserTexture);
 		}
 
-		// wall rendering 
 		for (int i = 0; i < Walls.size(); i++)
 		{
 			Walls[i].Render(resources.barrierTexture); 
 		}
 
-		//alien rendering  
 		for (int i = 0; i < Aliens.size(); i++)
 		{
 			Aliens[i].Render(resources.alienTexture);
 		}
 
-
-
-
-
-
 		break;
 	case State::ENDSCREEN:
-		//Code
-		//DrawText("END", 50, 50, 40, YELLOW);
-
-
-		
-
-		
-
 
 		if (newHighScore)
 		{
@@ -489,15 +460,12 @@ void Game::Render()
 
 void Game::SpawnAliens()
 {
-	for (int row = 0; row < formationHeight; row++) {
-		for (int col = 0; col < formationWidth; col++) {
-			Alien newAlien = Alien(); //TODO: remove two-step initialization
-			newAlien.active = true;
-			newAlien.position.x = static_cast<float>(formationX + 450 + (col * alienSpacing));
-			newAlien.position.y = static_cast<float>(formationY + (row * alienSpacing));
-			Aliens.push_back(newAlien);
-			std::cout << "Find Alien -X:" << newAlien.position.x << std::endl;
-			std::cout << "Find Alien -Y:" << newAlien.position.y << std::endl;
+	for (int row = 0; row < formationHeight; row++) 
+	{
+		for (int col = 0; col < formationWidth; col++) 
+		{
+			Vector2 tmpPos = { static_cast<float>(formationX + 50 + (col * alienSpacing)), static_cast<float>(formationY + (row * alienSpacing)) };
+			Aliens.emplace_back(tmpPos);
 		}
 	}
 
@@ -531,44 +499,6 @@ void Game::InsertNewHighScore(std::string Name)
 			break;
 		}
 	}
-}
-
-void Game::LoadLeaderboard() //TODO: Remove, it is redundant, not even used
-{
-	// CLEAR LEADERBOARD
-
-	// OPEN FILE
-
-	// READ DATA
-
-	// WRITE DATA ONTO LEADERBOARD
-
-	//CLOSE FILE
-}
-
-void Game::SaveLeaderboard() //TODO: Remove, it is redundant and this probably does not work
-{
-	// SAVE LEADERBOARD AS ARRAY
-
-	// OPEN FILE
-	std::fstream file;
-
-	file.open("Leaderboard");
-
-	if (!file)
-	{
-		std::cout << "file not found \n";
-
-	}
-	else
-	{
-		std::cout << "file found \n";
-	}
-	// CLEAR FILE
-
-	// WRITE ARRAY DATA INTO FILE
-
-	// CLOSE FILE
 }
 
 
@@ -639,16 +569,13 @@ bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineSta
 
 void Player::Initialize() 
 {
-	
 	float window_width = (float)GetScreenWidth();
 	x_pos = window_width / 2;
 	std::cout<< "Find Player -X:" << GetScreenWidth() / 2 << "Find Player -Y" << GetScreenHeight() - player_base_height << std::endl;
-
 }
 
 void Player::Update() 
 {
-
 	//Movement
 	direction = 0;
 	if (IsKeyDown(KEY_LEFT))
@@ -685,31 +612,13 @@ void Player::Update()
 		activeTexture++;
 		timer = 0;
 	}
-
-	
 }
 
 void Player::Render(Texture2D texture) 
 {
 	float window_height = static_cast<float>(GetScreenHeight()); 
-
-	DrawTexturePro(texture,
-		{
-			0,
-			0,
-			352,
-			352,
-		},
-		{
-			x_pos, window_height - player_base_height,
-			100,
-			100,
-		}, { 50, 50 },
-		0,
-		WHITE);
+	DrawTexture(texture, static_cast<int>(x_pos), static_cast<int>(window_height - player_base_height), WHITE);
 }
-
-
 
 void Projectile::Update()
 {
@@ -730,155 +639,20 @@ void Projectile::Update()
 
 void Projectile::Render(Texture2D texture)
 {
-	//DrawCircle((int)position.x, (int)position.y, 10, RED);
-	DrawTexturePro(texture,
-		{
-			0,
-			0,
-			176,
-			176,
-		},
-		{
-			position.x,
-			position.y,
-			50,
-			50,
-		}, { 25 , 25 },
-		0,
-		WHITE);
+	DrawTexture(texture, static_cast<int>(position.x), static_cast<int>(position.y), WHITE);
 }
 
 void Wall::Render(Texture2D texture)
 {
-	DrawTexturePro(texture,
-		{
-			0,
-			0,
-			704,
-			704,
-		},
-		{
-			position.x,
-			position.y,
-			200,
-			200,
-		}, { 100 , 100 },
-		0,
-		WHITE);
-
-
-	DrawText(TextFormat("%i", health), static_cast<int>(position.x-21.0f), static_cast<int>(position.y+10.0f), 40, RED);
-	
+	DrawTexture(texture, static_cast<int>(position.x), static_cast<int>(position.y), WHITE);
+	DrawText(TextFormat("%i", health), static_cast<int>(position.x + 15.0f), static_cast<int>(position.y + 50.0f), 20, RED);
 }
 
 void Wall::Update() 
 {
-
 	// set walls as inactive when out of health
 	if (health < 1)
 	{
 		active = false;
-	}
-
-
-}
-
-void Alien::Update() 
-{
-
-	if (moveRight)
-	{
-		position.x += speed; 
-
-		if (position.x >= GetScreenWidth())
-		{
-			moveRight = false; 
-			position.y += 50; 
-		}
-	}
-	else 
-	{
-		position.x -= speed; 
-
-		if (position.x <= 0)
-		{
-			moveRight = true; 
-			position.y += 50; 
-		}
-	}
-}
-
-void Alien::Render(Texture2D texture) 
-{
-	//DrawRectangle((int)position.x - 25, (int)position.y, 30, 30, RED);
-	//DrawCircle((int)position.x, (int)position.y, radius, GREEN);
-	
-	
-
-	DrawTexturePro(texture,
-		{
-			0,
-			0,
-			352,
-			352,
-		},
-		{
-			position.x,
-			position.y,
-			100,
-			100,
-		}, {50 , 50},
-		0,
-		WHITE);
-}
-
-
-//BACKGROUND
-void Star::Update(float starOffset)
-{
-	position.x = initPosition.x + starOffset;
-	position.y = initPosition.y;
-
-}
-
-void Star::Render()
-{
-	DrawCircle((int)position.x, (int)position.y, size, color);
-}
-
-
-void Background::Initialize(int starAmount)
-{
-	for (int i = 0; i < starAmount; i++) //TODO: make into for each
-	{
-		Star newStar; //TODO: Remove two-step initialization
-
-		newStar.initPosition.x = static_cast<float>(GetRandomValue(-150, GetScreenWidth() + 150));
-		newStar.initPosition.y = static_cast<float>(GetRandomValue(0, GetScreenHeight()));
-		
-		//random color?
-		newStar.color = SKYBLUE;
-
-		newStar.size = static_cast<float>(GetRandomValue(1, 4) / 2);
-
-		Stars.push_back(newStar);
-
-	}
-}
-
-void Background::Update(float offset)
-{
-	for (int i = 0; i < Stars.size(); i++) //TODO: make into for each
-	{
-		Stars[i].Update(offset);
-	}
-	
-}
-
-void Background::Render()
-{
-	for (int i = 0; i < Stars.size(); i++) //TODO: make into for each
-	{
-		Stars[i].Render();
 	}
 }

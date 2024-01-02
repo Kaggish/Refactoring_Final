@@ -3,23 +3,15 @@
 #include <vector>
 #include "Resources.hpp"
 #include <string>
+#include "Background.hpp"
+#include "Alien.hpp"
 
 //TODO: Remove redundant comments
-
-
 enum struct State //TODO: Renaming for clarity and better naming
 {
 	MENU,
 	RUNNING,
 	ENDSCREEN
-};
-
-enum struct EntityType //TODO: Move somewhere else so that it used by all objects that need this
-{
-	PLAYER,
-	ENEMY,
-	PLAYER_PROJECTILE,
-	ENEMY_PROJECTILE
 };
 
 struct PlayerData //TODO: Make a score class that keeps track of score and name
@@ -83,51 +75,10 @@ public:
 	void Update(); 
 };
 
-struct Alien //TODO: Make into its own class
+
+class Game //Make it into a class
 {
 public:
-	
-	Color color = WHITE; 
-	Vector2 position = {0, 0};
-	int x = 0; 
-	int y = 0; 
-	float radius = 30;
-	bool active = true;  
-	bool moveRight = true; 
-	
-	EntityType type = EntityType::ENEMY; 
-
-	int speed = 2; 
-		 
-	void Update(); 
-	void Render(Texture2D texture); 
-};
-
-
-struct Star //TODO: Make into its own class
-{
-	Vector2 initPosition = { 0, 0 };
-	Vector2 position = { 0, 0 };
-	Color color = GRAY;
-	float size = 0;
-	void Update(float starOffset);
-	void Render();
-};
-
-struct Background //TODO: Make into its own class
-{
-	
-
-	std::vector<Star> Stars;
-
-	void Initialize(int starAmount); //TODO: Make a constructor
-	void Update(float offset);
-	void Render();
-
-};
-
-struct Game //Make it into a class
-{
 	// Gamestate
 	State gameState = {};
 
@@ -169,10 +120,6 @@ struct Game //Make it into a class
 
 	void InsertNewHighScore(std::string name);
 
-	void LoadLeaderboard();
-	void SaveLeaderboard();
-
-
 	// Entity Storage and Resources
 	Resources resources;
 
@@ -185,16 +132,13 @@ struct Game //Make it into a class
 	std::vector<Alien> Aliens;
 
 	std::vector<PlayerData> Leaderboard = { {"Player 1", 500}, {"Player 2", 400}, {"Player 3", 300}, {"Player 4", 200}, {"Player 5", 100} };
-	
+
 	Background background;
-
-
 
 	Vector2 playerPos; //TODO: Initialize variables that are declared
 	Vector2 alienPos; 
 	Vector2 cornerPos;
 	float offset;
-
 
 
 	//TEXTBOX ENTER

@@ -43,16 +43,7 @@ int main(void)
     Resources resources; //TODO: remove two-step initialization
     game.resources = resources;
     game.Launch();
-
     
-    //--------------------------------------------------------------------------------------
-
-    InitAudioDevice();
-
-    auto sound = LoadSound("./hitHurt.ogg");
-    
-
-
 
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -61,16 +52,6 @@ int main(void)
         //----------------------------------------------------------------------------------
         // TODO: Update your variables here
         //----------------------------------------------------------------------------------
-
-        //if (IsKeyPressed(KEY_SPACE))
-        //{
-        //    PlaySound(sound);
-        //}
-
-        //if (IsKeyPressed(KEY_BACKSPACE))
-        //{
-        //    StopSound(sound);
-        //}
 
         game.Update();
       
@@ -88,8 +69,6 @@ int main(void)
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
-
-    CloseAudioDevice();
     
     // De-Initialization
     //--------------------------------------------------------------------------------------
