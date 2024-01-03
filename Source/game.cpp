@@ -48,6 +48,11 @@ void Game::Continue()
 	gameState = State::MENU;
 }
 
+void Game::Reset()
+{
+	SpawnWalls();
+}
+
 void Game::Input()
 {
 	player.Input();
@@ -142,43 +147,22 @@ void Game::Update()
 
 		if (newHighScore)
 		{
-			if (CheckCollisionPointRec(GetMousePosition(), textBox)) mouseOnText = true;
-			else mouseOnText = false;
+			SetMouseCursor(MOUSE_CURSOR_IBEAM);
 
-			if (mouseOnText)
+			int key = GetKeyPressed();
+
+			name[letterCount] = static_cast<char>(key);
+			name[letterCount + 1] = '\0';
+			letterCount++;
+
+			if (IsKeyPressed(KEY_BACKSPACE))
 			{
-				SetMouseCursor(MOUSE_CURSOR_IBEAM);
-
-				int key = GetCharPressed(); //TODO: Lets use the raylib keybindings
-
-				while (key > 0)
+				letterCount--;
+				if (letterCount < 0)
 				{
-					if ((key >= 32) && (key <= 125) && (letterCount < 9))
-					{
-						name[letterCount] = (char)key;
-						name[letterCount + 1] = '\0';
-						letterCount++;
-					}
-
-					key = GetCharPressed();
+					letterCount = 0;
 				}
-
-				if (IsKeyPressed(KEY_BACKSPACE))
-				{
-					letterCount--;
-					if (letterCount < 0) letterCount = 0;
-					name[letterCount] = '\0';
-				}
-			}
-			else SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-
-			if (mouseOnText)
-			{
-				framesCounter++;
-			}
-			else
-			{
-				framesCounter = 0;
+				name[letterCount] = '\0';
 			}
 
 			if (letterCount > 0 && letterCount < 9 && IsKeyReleased(KEY_ENTER))
@@ -192,11 +176,8 @@ void Game::Update()
 		}
 
 		break;
-	default:
-		break;
 	}
 }
-
 
 void Game::Render()
 {
@@ -204,9 +185,7 @@ void Game::Render()
 	{
 	case State::MENU:
 		DrawText("SPACE INVADERS", 200, 100, 40, YELLOW);
-
 		DrawText("PRESS SPACE TO BEGIN", 200, 350, 40, YELLOW);
-
 
 		break;
 	case State::RUNNING:
@@ -238,7 +217,7 @@ void Game::Render()
 		{
 			DrawText("NEW HIGHSCORE!", 600, 300, 60, YELLOW);
 
-			DrawText("PLACE MOUSE OVER INPUT BOX!", 600, 400, 20, YELLOW);
+			DrawText("Write your name", 600, 400, 20, YELLOW);
 
 			DrawRectangleRec(textBox, LIGHTGRAY);
 			if (mouseOnText)
@@ -257,10 +236,7 @@ void Game::Render()
 			{
 				if (letterCount < 9)
 				{
-					if (((framesCounter / 20) % 2) == 0)
-					{
-						DrawText("_", (int)textBox.x + 8 + MeasureText(name, 40), (int)textBox.y + 12, 40, MAROON);
-					}
+					DrawText("_", (int)textBox.x + 8 + MeasureText(name, 40), (int)textBox.y + 12, 40, MAROON);
 				}
 				else
 				{
@@ -461,29 +437,9 @@ void Game::BulletVsWall()
 
 void Game::DeleteDeadEntities()
 {
-	//TODO: Maybe an algorithm for this
-	for (int i = 0; i < Projectiles.size(); i++)
-	{
-		if (Projectiles[i].active == false)
-		{
-			Projectiles.erase(Projectiles.begin() + i);
-			i--;
-		}
-	}
-	for (int i = 0; i < Aliens.size(); i++)
-	{
-		if (Aliens[i].active == false)
-		{
-			Aliens.erase(Aliens.begin() + i);
-			i--;
-		}
-	}
-	for (int i = 0; i < Walls.size(); i++)
-	{
-		if (Walls[i].active == false)
-		{
-			Walls.erase(Walls.begin() + i);
-			i--;
-		}
-	}
+ 	Projectiles.erase(std::remove_if(Projectiles.begin(), Projectiles.end(), [](Projectile x) { return x.active == false; }), Projectiles.end());
+
+	Aliens.erase(std::remove_if(Aliens.begin(), Aliens.end(), [](Alien x) { return x.active == false; }), Aliens.end());
+
+	Walls.erase(std::remove_if(Walls.begin(), Walls.end(), [](Wall x) { return x.active == false; }), Walls.end());
 }

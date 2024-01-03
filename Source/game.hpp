@@ -80,8 +80,6 @@ class Game
 
 	Rectangle textBox = { 600, 500, 225, 50 };
 	bool mouseOnText = false;
-
-	int framesCounter = 0;
 public:
 	Game();
 
