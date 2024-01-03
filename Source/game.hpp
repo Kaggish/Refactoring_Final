@@ -24,31 +24,23 @@ struct PlayerData //TODO: Make a score class that keeps track of score and name
 
 class Game
 {
-public:
-	Game();
 	State gameState = State::MENU;
 
-	int score = 0;
-
-	int wallCount = 5;
+	bool newHighScore = false;
 
 	float shootTimer = 0;
 
+	int score = 0;
+	int wallCount = 5;
 	int formationWidth = 8;
 	int formationHeight = 5;
 	int alienSpacing = 80;
 	int formationX = 100;
 	int formationY = 50;
 
-	bool newHighScore = false;
-
-	void End();
-
 	void Continue();
-
-	void Input();
-	void Update();
-	void Render();
+	void Reset();
+	void End();
 
 	void SpawnAliens();
 	void SpawnWalls();
@@ -90,4 +82,10 @@ public:
 	bool mouseOnText = false;
 
 	int framesCounter = 0;
+public:
+	Game();
+
+	void Input();
+	void Update();
+	void Render();
 };
