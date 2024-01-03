@@ -1,10 +1,19 @@
 #include "Projectile.hpp"
 
+Projectile::Projectile(Vector2 Position, EntityType Type)
+	:position(Position)
+	,type(Type)
+{
+	if (type == EntityType::ENEMY_PROJECTILE) {
+		SPEED *= -1;
+		position.y += 40;
+	}
+}
+
 void Projectile::Update()
 {
 	position.y -= SPEED;
 
-	// UPDATE LINE POSITION
 	lineStart.y = position.y - 15;
 	lineEnd.y = position.y + 15;
 

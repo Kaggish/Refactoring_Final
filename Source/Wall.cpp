@@ -1,5 +1,9 @@
 #include "Wall.hpp"
 
+Wall::Wall(Vector2 Position)
+	:position(Position)
+{}
+
 void Wall::Render(Texture2D texture)
 {
 	DrawTexture(texture, static_cast<int>(position.x), static_cast<int>(position.y), WHITE);
@@ -8,7 +12,6 @@ void Wall::Render(Texture2D texture)
 
 void Wall::Update()
 {
-	// set walls as inactive when out of health
 	if (health < 1)
 	{
 		active = false;

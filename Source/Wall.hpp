@@ -1,15 +1,15 @@
 #pragma once
 #include "raylib.h"
 
-class Wall //TODO: Make into its own class
+class Wall
 {
 public:
-	Vector2 position; //TODO: Initialize variables that are declared
-	Rectangle rec;
-	bool active;
-	Color COLOR;
+	Wall(Vector2 Position);
+
+	Vector2 position = {};
 	int health = 50;
-	float radius = 60;
+	bool active = true;
+	float radius = 30;
 
 	void Render(Texture2D texture);
 	void Update();

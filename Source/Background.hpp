@@ -17,11 +17,11 @@ public:
 class Background
 {
 public:
+	Background();
 	float scrollingOffset = 0.0f;
 	const int starAmmount = 600;
 
 	std::vector<Star> stars;
-	void AtStart();
 	void Update(float ScrollingOffset);
 	void Render();
 };

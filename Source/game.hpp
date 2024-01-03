@@ -1,6 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include <vector>
+#include "Background.hpp"
 #include "Resources.hpp"
 #include <string>
 #include "Alien.hpp"
@@ -21,14 +22,13 @@ struct PlayerData //TODO: Make a score class that keeps track of score and name
 	int score;
 };
 
-class Game //Make it into a class
+class Game
 {
 public:
-	// Gamestate
-	State gameState = {};
+	Game();
+	State gameState = State::MENU;
 
-	// Score
-	int score = 0; //TODO: Initialize variables that are declared
+	int score = 0;
 
 	int wallCount = 5;
 
@@ -44,18 +44,23 @@ public:
 
 	bool newHighScore = false;
 
-	void Start();
 	void End();
 
 	void Continue();
-	void Launch(); //TODO: Better naming or just remove
 
+	void Input();
 	void Update();
 	void Render();
 
 	void SpawnAliens();
+	void SpawnWalls();
 
 	bool CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineTop, Vector2 lineBottom);
+
+	void BulletVsPlayer();
+	void BulletVsAlien();
+	void BulletVsWall();
+	void DeleteDeadEntities();
 
 	bool CheckNewHighScore();
 
@@ -63,7 +68,7 @@ public:
 
 	Resources resources;
 
-	Player player;
+	Player player{ GetScreenWidth() / 2 };
 
 	std::vector<Projectile> Projectiles;
 

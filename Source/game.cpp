@@ -5,8 +5,6 @@
 #include <thread>
 #include <fstream>
 
-
-// MATH FUNCTIONS
 float lineLength(Vector2 A, Vector2 B) //TODO: Make into a helper function
 {
 	float length = sqrtf(static_cast<float>(pow(B.x - A.x, 2) + pow(B.y - A.y, 2)));
@@ -28,43 +26,16 @@ bool pointInCircle(Vector2 circlePos, float radius, Vector2 point) //TODO: Make 
 	}
 }
 
-
-void Game::Start()
+Game::Game()
 {
-	// creating walls 
-	float window_width = (float)GetScreenWidth(); 
-	float window_height = (float)GetScreenHeight(); 
-	float wall_distance = window_width / (wallCount + 1); 
-	for (int i = 0; i < wallCount; i++)
-	{
-		Wall newWalls; //TODO: Remove two-step initialization
-		newWalls.position.y = window_height - 250; 
-		newWalls.position.x = wall_distance * (i + 1); 
-
-		Walls.push_back(newWalls); 
-
-	}
-
-
-	//creating player
-	Player newPlayer; //TODO: Remove two-step initialization
-	player = newPlayer;
-	player.Initialize();
-
-	//creating aliens
+	SpawnWalls();
 	SpawnAliens();
-	background.AtStart();
 
-	//reset score
 	score = 0;
-
-	gameState = State::RUNNING;
-
 }
 
 void Game::End()
 {
-	//SAVE SCORE AND UPDATE SCOREBOARD
 	Projectiles.clear();
 	Walls.clear();
 	Aliens.clear();
@@ -77,9 +48,9 @@ void Game::Continue()
 	gameState = State::MENU;
 }
 
-void Game::Launch()
+void Game::Input()
 {
-	resources.Load();
+	player.Input();
 }
 
 void Game::Update()
@@ -87,43 +58,43 @@ void Game::Update()
 	switch (gameState)
 	{
 	case State::MENU:
-		if (IsKeyReleased(KEY_SPACE))
+		if (IsKeyPressed(KEY_SPACE))
 		{
-			Start();
+			gameState = State::RUNNING;
+			player.lives = 3;
+		}
+		break;
+
+	case State::RUNNING:
+
+		if (player.lives < 1)
+		{
+			return End();
 		}
 
-		break;
-	case State::RUNNING:
 		if (IsKeyReleased(KEY_Q))
 		{
-			End();
+			return End();
 		}
 
-		player.Update();
-		
 		for (auto& aliens : Aliens) //TODO: Make into a for each
 		{
 			aliens.Update();
 
 			if (aliens.position.y > GetScreenHeight() - player.player_base_height)
 			{
-				End();
+				return End();
 			}
 		}
 
-		//End game if player dies
-		if (player.lives < 1)
-		{
-			End();
-		}
+		player.Update();
 
-		//Spawn new aliens if aliens run out
 		if (Aliens.size() < 1)
 		{
 			SpawnAliens();
 		}
 
-		playerPos = { player.x_pos, (float)player.player_base_height }; //Make a get function?
+		playerPos = { static_cast<float>(player.PosX), static_cast<float>(player.player_base_height) }; //Make a get function?
 		cornerPos = { 0, (float)player.player_base_height };
 		offset = lineLength(playerPos, cornerPos) * -1;
 		background.Update(offset / 15);
@@ -158,9 +129,11 @@ void Game::Update()
 			{
 				if (Projectiles[j].type == EntityType::ENEMY_PROJECTILE)
 				{
-					if (CheckCollision({player.x_pos, GetScreenHeight() - player.player_base_height }, player.radius, Projectiles[j].lineStart, Projectiles[j].lineEnd))
+					if (CheckCollision({static_cast<float>(player.PosX), GetScreenHeight() - player.player_base_height }, 
+										static_cast<float>(player.radius), 
+										Projectiles[j].lineStart, 
+										Projectiles[j].lineEnd))
 					{
-						std::cout << "dead!\n"; 
 						Projectiles[j].active = false; 
 						player.lives -= 1; 
 					}
@@ -181,31 +154,20 @@ void Game::Update()
 		if (IsKeyPressed(KEY_SPACE))
 		{
 			float window_height = (float)GetScreenHeight();
-			Projectile newProjectile; //TODO: Remove two-step initialization
-			newProjectile.position.x = player.x_pos;
-			newProjectile.position.y = window_height - 130;
-			newProjectile.type = EntityType::PLAYER_PROJECTILE;
-			Projectiles.push_back(newProjectile);
+			Vector2 tmpPos = { static_cast<float>(player.PosX), window_height - 130 };
+			Projectiles.emplace_back(tmpPos, EntityType::PLAYER_PROJECTILE);
+		}
+
+		if (shootTimer > 59)
+		{
+			int randomAlienIndex = rand() % Aliens.size();
+
+			Vector2 tmpPos = { Aliens[randomAlienIndex].position.x, Aliens[randomAlienIndex].position.y };
+			Projectiles.emplace_back(tmpPos, EntityType::ENEMY_PROJECTILE);
+			shootTimer = 0;
 		}
 
 		shootTimer += 1;
-		if (shootTimer > 59)
-		{
-			int randomAlienIndex = 0;
-
-			if (Aliens.size() > 1)
-			{
-				randomAlienIndex = rand() % Aliens.size();
-			}
-
-			Projectile newProjectile; //TODO: Remove two-step initialization
-			newProjectile.position = Aliens[randomAlienIndex].position;
-			newProjectile.position.y += 40;
-			newProjectile.SPEED = -15;
-			newProjectile.type = EntityType::ENEMY_PROJECTILE;
-			Projectiles.push_back(newProjectile);
-			shootTimer = 0;
-		}
 
 		// REMOVE INACTIVE/DEAD ENITITIES
 		for (int i = 0; i < Projectiles.size(); i++) //TODO: Make into a for each or find a range loop
@@ -233,14 +195,12 @@ void Game::Update()
 			}
 		}
 
-			
-		
-
 	break;
 	case State::ENDSCREEN:
 		if (IsKeyReleased(KEY_ENTER) && !newHighScore)
 		{
 			Continue();
+			//TODO: Reset all values
 		}
 
 		if (newHighScore)
@@ -318,21 +278,20 @@ void Game::Render()
 		DrawText(TextFormat("Score: %i", score), 50, 20, 40, YELLOW);
 		DrawText(TextFormat("Lives: %i", player.lives), 50, 70, 40, YELLOW);
 
-		player.Render(resources.shipTextures[player.activeTexture]);
-
-		for (int i = 0; i < Projectiles.size(); i++)
+		player.Render(resources.shipTextures[player.activeTexture].get());
+		for (auto& projectile : Projectiles)
 		{
-			Projectiles[i].Render(resources.laserTexture);
+			projectile.Render(resources.laserTexture.get());
 		}
 
-		for (int i = 0; i < Walls.size(); i++)
+		for (auto& wall : Walls)
 		{
-			Walls[i].Render(resources.barrierTexture); 
+			wall.Render(resources.barrierTexture.get());
 		}
 
-		for (int i = 0; i < Aliens.size(); i++)
+		for (auto& alien : Aliens)
 		{
-			Aliens[i].Render(resources.alienTexture);
+			alien.Render(resources.alienTexture.get());
 		}
 
 		break;
@@ -365,7 +324,6 @@ void Game::Render()
 					{
 						DrawText("_", (int)textBox.x + 8 + MeasureText(name, 40), (int)textBox.y + 12, 40, MAROON);
 					}
-
 				}
 				else
 				{
@@ -394,9 +352,6 @@ void Game::Render()
 			}
 		}
 		break;
-	default:
-		//SHOULD NOT HAPPEN
-		break;
 	}
 }
 
@@ -410,7 +365,16 @@ void Game::SpawnAliens()
 			Aliens.emplace_back(tmpPos);
 		}
 	}
+}
 
+void Game::SpawnWalls()
+{
+	float wall_distance = static_cast<float>(GetScreenWidth() / (wallCount + 1.0f));
+	for (int i = 0; i < wallCount; i++)
+	{
+		Vector2 tmpPos = { wall_distance * (i + 1), static_cast<float>(GetScreenHeight()) - 250.0f };
+		Walls.emplace_back(tmpPos);
+	}
 }
 
 bool Game::CheckNewHighScore()
@@ -419,7 +383,6 @@ bool Game::CheckNewHighScore()
 	{
 		return true;
 	}
-
 	return false;
 }
 
@@ -442,7 +405,6 @@ void Game::InsertNewHighScore(std::string Name)
 		}
 	}
 }
-
 
 bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineStart, Vector2 lineEnd)
 {
@@ -506,5 +468,4 @@ bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineSta
 		// Point is not on the line, line is not colliding
 		return false;
 	}
-
 }

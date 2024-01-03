@@ -1,13 +1,23 @@
 #include "Player.hpp"
 
+Player::Player(int PositionX)
+	:PosX(PositionX)
+{}
 
-void Player::Initialize()
+int Player::Boundaries()
 {
-	float window_width = (float)GetScreenWidth();
-	x_pos = window_width / 2;
+	if (PosX < 0)
+	{
+		return PosX = 0;
+	}
+	else if (PosX > GetScreenWidth() - radius)
+	{
+		return PosX = GetScreenWidth() - radius;
+	}
+	return PosX = PosX;
 }
 
-void Player::Update()
+void Player::Input()
 {
 	direction = 0;
 	if (IsKeyDown(KEY_LEFT))
@@ -18,18 +28,14 @@ void Player::Update()
 	{
 		direction++;
 	}
+}
 
-	x_pos += SPEED * direction;
+void Player::Update()
+{
+	PosX += SPEED * direction;
+	Boundaries();
 
-	if (x_pos < 0 + radius)
-	{
-		x_pos = 0 + radius;
-	}
-	else if (x_pos > GetScreenWidth() - radius)
-	{
-		x_pos = GetScreenWidth() - radius;
-	}
-
+	//Animate()
 	timer += GetFrameTime();
 
 	if (timer > 0.4 && activeTexture == 2)
@@ -47,5 +53,5 @@ void Player::Update()
 void Player::Render(Texture2D texture)
 {
 	float window_height = static_cast<float>(GetScreenHeight());
-	DrawTexture(texture, static_cast<int>(x_pos), static_cast<int>(window_height - player_base_height), WHITE);
+	DrawTexture(texture, static_cast<int>(PosX), static_cast<int>(window_height - player_base_height), WHITE);
 }
