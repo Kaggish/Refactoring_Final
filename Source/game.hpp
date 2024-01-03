@@ -18,8 +18,8 @@ enum struct State
 
 struct PlayerData //TODO: Make a score class that keeps track of score and name
 {
-	std::string name; //TODO: Initialize variables that are declared
-	int score;
+	std::string name = {}; //TODO: Initialize variables that are declared
+	int score = 0;
 };
 
 class Game
@@ -33,8 +33,6 @@ public:
 	int wallCount = 5;
 
 	float shootTimer = 0;
-
-	Rectangle rec = { 0, 0 ,0 ,0 }; 
 
 	int formationWidth = 8;
 	int formationHeight = 5;

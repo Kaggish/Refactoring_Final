@@ -77,6 +77,12 @@ void Game::Update()
 			return End();
 		}
 
+		if (Aliens.size() < 1)
+		{
+			SpawnAliens();
+		}
+
+		player.Update();
 		for (auto& aliens : Aliens) //TODO: Make into a for each
 		{
 			aliens.Update();
@@ -86,18 +92,6 @@ void Game::Update()
 				return End();
 			}
 		}
-
-		player.Update();
-
-		if (Aliens.size() < 1)
-		{
-			SpawnAliens();
-		}
-
-		playerPos = { static_cast<float>(player.PosX), static_cast<float>(player.player_base_height) }; //Make a get function?
-		cornerPos = { 0, (float)player.player_base_height };
-		offset = lineLength(playerPos, cornerPos) * -1;
-		background.Update(offset / 15);
 
 		for (auto& projectile : Projectiles) //TODO: Make into a for each
 		{
@@ -109,51 +103,18 @@ void Game::Update()
 			wall.Update();
 		}
 
+		playerPos = { static_cast<float>(player.PosX), static_cast<float>(player.player_base_height) }; //Make a get function?
+		cornerPos = { 0, (float)player.player_base_height };
+		offset = lineLength(playerPos, cornerPos) * -1;
+		background.Update(offset / 15);
 
-		for (int i = 0; i < Projectiles.size(); i++) //TODO: Make into a for each
-		{
-			if (Projectiles[i].type == EntityType::PLAYER_PROJECTILE)
-			{
-				for (int a = 0; a < Aliens.size(); a++) //TODO: Make into a for each
-				{
-					if (CheckCollision(Aliens[a].position, Aliens[a].radius, Projectiles[i].lineStart, Projectiles[i].lineEnd))
-					{
-						Projectiles[i].active = false;
-						Aliens[a].active = false;
-						score += 100;
-					}
-				}
-			}
-
-			for (int j = 0; j < Projectiles.size(); j++) //TODO: Make into a for each
-			{
-				if (Projectiles[j].type == EntityType::ENEMY_PROJECTILE)
-				{
-					if (CheckCollision({static_cast<float>(player.PosX), GetScreenHeight() - player.player_base_height }, 
-										static_cast<float>(player.radius), 
-										Projectiles[j].lineStart, 
-										Projectiles[j].lineEnd))
-					{
-						Projectiles[j].active = false; 
-						player.lives -= 1; 
-					}
-				}
-			}
-
-
-			for (int b = 0; b < Walls.size(); b++) //TODO: Make into a for each
-			{
-				if (CheckCollision(Walls[b].position, Walls[b].radius, Projectiles[i].lineStart, Projectiles[i].lineEnd))
-				{
-					Projectiles[i].active = false;
-					Walls[b].health -= 1;
-				}
-			}
-		}
+		BulletVsWall();
+		BulletVsAlien();
+		BulletVsPlayer();
 
 		if (IsKeyPressed(KEY_SPACE))
 		{
-			float window_height = (float)GetScreenHeight();
+			float window_height = static_cast<float>(GetScreenHeight());
 			Vector2 tmpPos = { static_cast<float>(player.PosX), window_height - 130 };
 			Projectiles.emplace_back(tmpPos, EntityType::PLAYER_PROJECTILE);
 		}
@@ -169,31 +130,7 @@ void Game::Update()
 
 		shootTimer += 1;
 
-		// REMOVE INACTIVE/DEAD ENITITIES
-		for (int i = 0; i < Projectiles.size(); i++) //TODO: Make into a for each or find a range loop
-		{
-			if (Projectiles[i].active == false)
-			{
-				Projectiles.erase(Projectiles.begin() + i);
-				i--;
-			}
-		}
-		for (int i = 0; i < Aliens.size(); i++) // TODO: Make into a for each
-		{
-			if (Aliens[i].active == false)
-			{
-				Aliens.erase(Aliens.begin() + i);
-				i--;
-			}
-		}
-		for (int i = 0; i < Walls.size(); i++) // TODO: Make into a for each
-		{
-			if (Walls[i].active == false)
-			{
-				Walls.erase(Walls.begin() + i);
-				i--;
-			}
-		}
+		DeleteDeadEntities();
 
 	break;
 	case State::ENDSCREEN:
@@ -266,7 +203,7 @@ void Game::Render()
 	switch (gameState)
 	{
 	case State::MENU:
-		DrawText("SPACE INVADERS", 200, 100, 160, YELLOW);
+		DrawText("SPACE INVADERS", 200, 100, 40, YELLOW);
 
 		DrawText("PRESS SPACE TO BEGIN", 200, 350, 40, YELLOW);
 
@@ -467,5 +404,86 @@ bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineSta
 	{
 		// Point is not on the line, line is not colliding
 		return false;
+	}
+}
+
+void Game::BulletVsPlayer()
+{
+	for (auto& projectile : Projectiles) //TODO: Make into a for each
+	{
+		if (projectile.type == EntityType::ENEMY_PROJECTILE)
+		{
+			if (CheckCollision({ static_cast<float>(player.PosX), GetScreenHeight() - player.player_base_height },
+				static_cast<float>(player.radius),
+				projectile.lineStart,
+				projectile.lineEnd))
+			{
+				projectile.active = false;
+				player.lives -= 1;
+			}
+		}
+	}
+}
+
+void Game::BulletVsAlien()
+{
+	for (auto& projectile : Projectiles) //TODO: Make into a for each
+	{
+		if (projectile.type == EntityType::PLAYER_PROJECTILE)
+		{
+			for (auto& alien : Aliens) //TODO: Make into a for each
+			{
+				if (CheckCollision(alien.position, alien.radius, projectile.lineStart, projectile.lineEnd))
+				{
+					projectile.active = false;
+					alien.active = false;
+					score += 100;
+				}
+			}
+		}
+	}
+}
+
+void Game::BulletVsWall()
+{
+	for (auto& projectile : Projectiles) //TODO: Make into a for each
+	{
+		for (auto& wall : Walls) //TODO: Make into a for each
+		{
+			if (CheckCollision(wall.position, wall.radius, projectile.lineStart, projectile.lineEnd))
+			{
+				projectile.active = false;
+				wall.health -= 1;
+			}
+		}
+	}
+}
+
+void Game::DeleteDeadEntities()
+{
+	//TODO: Maybe an algorithm for this
+	for (int i = 0; i < Projectiles.size(); i++)
+	{
+		if (Projectiles[i].active == false)
+		{
+			Projectiles.erase(Projectiles.begin() + i);
+			i--;
+		}
+	}
+	for (int i = 0; i < Aliens.size(); i++)
+	{
+		if (Aliens[i].active == false)
+		{
+			Aliens.erase(Aliens.begin() + i);
+			i--;
+		}
+	}
+	for (int i = 0; i < Walls.size(); i++)
+	{
+		if (Walls[i].active == false)
+		{
+			Walls.erase(Walls.begin() + i);
+			i--;
+		}
 	}
 }

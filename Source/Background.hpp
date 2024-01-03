@@ -19,7 +19,7 @@ class Background
 public:
 	Background();
 	float scrollingOffset = 0.0f;
-	const int starAmmount = 600;
+	const int starAmmount = 300;
 
 	std::vector<Star> stars;
 	void Update(float ScrollingOffset);

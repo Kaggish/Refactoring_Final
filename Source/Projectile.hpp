@@ -7,7 +7,7 @@ class Projectile //TODO: Make into its own class
 	int SPEED = 15;
 
 public:
-	EntityType type = EntityType::PLAYER_PROJECTILE;
+	EntityType type = {};
 	Projectile(Vector2 Position, EntityType Type);
 
 	Vector2 position = { 0,0 };
