@@ -1,23 +1,23 @@
 #include "Player.hpp"
 
-Player::Player(int PositionX)
+Player::Player(int PositionX) noexcept
 	:PosX(PositionX)
 {}
 
-int Player::Boundaries()
+int Player::Boundaries() noexcept
 {
 	if (PosX < 0)
 	{
 		return PosX = 0;
 	}
-	else if (PosX > GetScreenWidth() - radius)
+	else if (PosX > GetScreenWidth() - RADIUS)
 	{
-		return PosX = GetScreenWidth() - radius;
+		return PosX = GetScreenWidth() - RADIUS;
 	}
 	return PosX = PosX;
 }
 
-void Player::Input()
+void Player::Input() noexcept
 {
 	direction = 0;
 	if (IsKeyDown(KEY_LEFT))
@@ -30,7 +30,7 @@ void Player::Input()
 	}
 }
 
-void Player::Update()
+void Player::Update() noexcept
 {
 	PosX += SPEED * direction;
 	Boundaries();
@@ -50,8 +50,8 @@ void Player::Update()
 	}
 }
 
-void Player::Render(Texture2D texture)
+void Player::Render(Texture2D texture) const noexcept
 {
-	float window_height = static_cast<float>(GetScreenHeight());
+	const float window_height = static_cast<float>(GetScreenHeight());
 	DrawTexture(texture, static_cast<int>(PosX), static_cast<int>(window_height - player_base_height), WHITE);
 }
