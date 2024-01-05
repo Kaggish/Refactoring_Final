@@ -1,13 +1,13 @@
 #pragma once
 #include "raylib.h"
-#include <vector>
 #include "Background.hpp"
 #include "Resources.hpp"
-#include <string>
-#include "Alien.hpp"
 #include "Player.hpp"
-#include "Projectile.hpp"
 #include "Wall.hpp"
+#include "Alien.hpp"
+#include "Projectile.hpp"
+#include <vector>
+#include <string>
 
 enum struct State
 {
@@ -16,10 +16,19 @@ enum struct State
 	ENDSCREEN
 }; 
 
-struct PlayerData //TODO: Make a score class that keeps track of score and name
+struct PlayerData
 {
-	std::string name = {}; //TODO: Initialize variables that are declared
+	std::string name = {};
 	int score = 0;
+};
+
+struct EntityPositioningData
+{
+	const int formationWidth = 8;
+	const int formationHeight = 5;
+	const int alienSpacing = 80;
+	const int formationX = 100;
+	const int formationY = 50;
 };
 
 class Game
@@ -30,60 +39,51 @@ class Game
 
 	float shootTimer = 0;
 
+	const int wallCount = 5;
 	int score = 0;
-	int wallCount = 5;
-	int formationWidth = 8;
-	int formationHeight = 5;
-	int alienSpacing = 80;
-	int formationX = 100;
-	int formationY = 50;
+	int letterCount = 0;;
 
-	void Continue();
-	void Reset();
-	void End();
-
-	void SpawnAliens();
-	void SpawnWalls();
-
-	bool CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineTop, Vector2 lineBottom);
-
-	void BulletVsPlayer();
-	void BulletVsAlien();
-	void BulletVsWall();
-	void DeleteDeadEntities();
-
-	bool CheckNewHighScore();
-
-	void InsertNewHighScore(std::string name);
-
-	Resources resources;
-
-	Player player{ GetScreenWidth() / 2 };
-
-	std::vector<Projectile> Projectiles;
-
-	std::vector<Wall> Walls;
-
-	std::vector<Alien> Aliens;
-
-	std::vector<PlayerData> Leaderboard = { {"Player 1", 500}, {"Player 2", 400}, {"Player 3", 300}, {"Player 4", 200}, {"Player 5", 100} };
-
-	Background background;
-
-	Vector2 playerPos = {}; //TODO: Initialize variables that are declared
+	Vector2 playerPos = {};
 	Vector2 alienPos = {};
 	Vector2 cornerPos = {};
 	float offset = 0;
 
-	char name[9 + 1] = "\0"; //TODO: Use string not char
-	int letterCount = 0;
-
+	std::string name = {};
 	Rectangle textBox = { 600, 500, 225, 50 };
-	bool mouseOnText = false;
-public:
-	Game();
 
-	void Input();
-	void Update();
-	void Render();
+	Resources resources;
+
+	Player player{ GetScreenWidth() / 2 };
+	PlayerData Data;
+
+	std::vector<Projectile> PlayerProjectiles;
+	std::vector<Projectile> EnemyProjectiles;
+	std::vector<Wall> Walls;
+	std::vector<Alien> Aliens;
+	std::vector<PlayerData> Leaderboard = { {"Player 1", 500}, {"Player 2", 400}, {"Player 3", 300}, {"Player 4", 200}, {"Player 5", 100} };
+
+	Background background;
+
+	void Continue() noexcept;
+	void End() noexcept;
+
+	void SpawnAliens();
+	void SpawnWalls();
+
+	bool CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineTop, Vector2 lineBottom) noexcept;
+
+	void BulletVsPlayer() noexcept;
+	void BulletVsAlien() noexcept;
+	void PlayerBulletVsWall() noexcept;
+	void EnemyBulletVsWall() noexcept;
+	void DeleteDeadEntities();
+
+	bool CheckNewHighScore() noexcept;
+
+	bool InsertNewHighScore(std::string_view name);
+
+public:
+	void Input() noexcept;
+	void Update() noexcept;
+	void Render() const noexcept;
 };

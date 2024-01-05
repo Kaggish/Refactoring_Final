@@ -1,22 +1,22 @@
 #include "game.hpp"
-#include <iostream>
-#include <vector>
-#include <chrono>
-#include <thread>
-#include <fstream>
+#include "Wall.hpp"
+#include "Alien.hpp"
+#include "Projectile.hpp"
+#include "algorithm"
+#include "raymath.h"
 
-float lineLength(Vector2 A, Vector2 B) //TODO: Make into a helper function
+float lineLength(Vector2 A, Vector2 B) noexcept
 {
-	float length = sqrtf(static_cast<float>(pow(B.x - A.x, 2) + pow(B.y - A.y, 2)));
+	const float length = sqrtf(static_cast<float>(pow(B.x - A.x, 2) + pow(B.y - A.y, 2)));
 
 	return length;
 }
 
-bool pointInCircle(Vector2 circlePos, float radius, Vector2 point) //TODO: Make into a helper function
+bool pointInCircle(Vector2 circlePos, float RADIUS, Vector2 point) noexcept
 {
-	float distanceToCentre = lineLength(circlePos, point);
+	const float distanceToCentre = lineLength(circlePos, point);
 
-	if (distanceToCentre < radius)
+	if (distanceToCentre < RADIUS)
 	{
 		return true;
 	}
@@ -26,39 +26,27 @@ bool pointInCircle(Vector2 circlePos, float radius, Vector2 point) //TODO: Make 
 	}
 }
 
-Game::Game()
+void Game::End() noexcept
 {
-	SpawnWalls();
-	SpawnAliens();
-
-	score = 0;
-}
-
-void Game::End()
-{
-	Projectiles.clear();
+	PlayerProjectiles.clear();
+	EnemyProjectiles.clear();
 	Walls.clear();
 	Aliens.clear();
 	newHighScore = CheckNewHighScore();
 	gameState = State::ENDSCREEN;
 }
 
-void Game::Continue()
+void Game::Continue() noexcept
 {
 	gameState = State::MENU;
 }
 
-void Game::Reset()
-{
-	SpawnWalls();
-}
-
-void Game::Input()
+void Game::Input() noexcept
 {
 	player.Input();
 }
 
-void Game::Update()
+void Game::Update() noexcept
 {
 	switch (gameState)
 	{
@@ -66,6 +54,8 @@ void Game::Update()
 		if (IsKeyPressed(KEY_SPACE))
 		{
 			gameState = State::RUNNING;
+			SpawnWalls();
+			score = 0;
 			player.lives = 3;
 		}
 		break;
@@ -88,48 +78,54 @@ void Game::Update()
 		}
 
 		player.Update();
-		for (auto& aliens : Aliens) //TODO: Make into a for each
+		for (auto& alien : Aliens)
 		{
-			aliens.Update();
+			alien.Update();
 
-			if (aliens.position.y > GetScreenHeight() - player.player_base_height)
+			if (alien.position.y > GetScreenHeight() - player.player_base_height)
 			{
 				return End();
 			}
 		}
 
-		for (auto& projectile : Projectiles) //TODO: Make into a for each
+		for (auto& projectile : PlayerProjectiles)
 		{
 			projectile.Update();
 		}
 
-		for (auto& wall : Walls) //TODO: Make into a for each
+		for (auto& projectile : EnemyProjectiles)
+		{
+			projectile.Update();
+		}
+
+		for (auto& wall : Walls)
 		{
 			wall.Update();
 		}
 
-		playerPos = { static_cast<float>(player.PosX), static_cast<float>(player.player_base_height) }; //Make a get function?
-		cornerPos = { 0, (float)player.player_base_height };
+		playerPos = { static_cast<float>(player.PosX), static_cast<float>(player.player_base_height) };
+		cornerPos = { 0, static_cast<float>(player.player_base_height) };
 		offset = lineLength(playerPos, cornerPos) * -1;
 		background.Update(offset / 15);
 
-		BulletVsWall();
+		PlayerBulletVsWall();
+		EnemyBulletVsWall();
 		BulletVsAlien();
 		BulletVsPlayer();
 
 		if (IsKeyPressed(KEY_SPACE))
 		{
-			float window_height = static_cast<float>(GetScreenHeight());
-			Vector2 tmpPos = { static_cast<float>(player.PosX), window_height - 130 };
-			Projectiles.emplace_back(tmpPos, EntityType::PLAYER_PROJECTILE);
+			const float window_height = static_cast<float>(GetScreenHeight());
+			Vector2 tmpPos = { static_cast<float>(player.PosX), window_height - 130 }; //TODO: magical value
+			PlayerProjectiles.emplace_back(tmpPos, BulletType::PLAYER_PROJECTILE);
 		}
 
 		if (shootTimer > 59)
 		{
-			int randomAlienIndex = rand() % Aliens.size();
+			const int randomAlienIndex = rand() % Aliens.size();
 
 			Vector2 tmpPos = { Aliens[randomAlienIndex].position.x, Aliens[randomAlienIndex].position.y };
-			Projectiles.emplace_back(tmpPos, EntityType::ENEMY_PROJECTILE);
+			EnemyProjectiles.emplace_back(tmpPos, BulletType::ENEMY_PROJECTILE);
 			shootTimer = 0;
 		}
 
@@ -142,34 +138,26 @@ void Game::Update()
 		if (IsKeyReleased(KEY_ENTER) && !newHighScore)
 		{
 			Continue();
-			//TODO: Reset all values
 		}
 
 		if (newHighScore)
 		{
-			SetMouseCursor(MOUSE_CURSOR_IBEAM);
+			const int key = GetCharPressed();
 
-			int key = GetKeyPressed();
-
-			name[letterCount] = static_cast<char>(key);
-			name[letterCount + 1] = '\0';
-			letterCount++;
-
-			if (IsKeyPressed(KEY_BACKSPACE))
+			if (key > 0)
 			{
-				letterCount--;
-				if (letterCount < 0)
-				{
-					letterCount = 0;
-				}
-				name[letterCount] = '\0';
+				name.push_back(static_cast<char>(key));
+				letterCount++;
+			}
+
+			if (IsKeyPressed(KEY_BACKSPACE) && name.size() > 0)
+			{
+				name.pop_back();
 			}
 
 			if (letterCount > 0 && letterCount < 9 && IsKeyReleased(KEY_ENTER))
 			{
-				std::string nameEntry(name);
-
-				InsertNewHighScore(nameEntry);
+				InsertNewHighScore(name);
 
 				newHighScore = false;
 			}
@@ -179,7 +167,7 @@ void Game::Update()
 	}
 }
 
-void Game::Render()
+void Game::Render() const noexcept
 {
 	switch (gameState)
 	{
@@ -195,7 +183,13 @@ void Game::Render()
 		DrawText(TextFormat("Lives: %i", player.lives), 50, 70, 40, YELLOW);
 
 		player.Render(resources.shipTextures[player.activeTexture].get());
-		for (auto& projectile : Projectiles)
+
+		for (auto& projectile : PlayerProjectiles)
+		{
+			projectile.Render(resources.laserTexture.get());
+		}
+
+		for (auto& projectile : EnemyProjectiles)
 		{
 			projectile.Render(resources.laserTexture.get());
 		}
@@ -220,32 +214,23 @@ void Game::Render()
 			DrawText("Write your name", 600, 400, 20, YELLOW);
 
 			DrawRectangleRec(textBox, LIGHTGRAY);
-			if (mouseOnText)
+			
+			DrawRectangleLines(static_cast<int>(textBox.x), static_cast<int>(textBox.y), static_cast<int>(textBox.width), static_cast<int>(textBox.height), RED);
+
+			DrawText(name.data(), static_cast<int>(textBox.x) + 5, static_cast<int>(textBox.y) + 8, 40, MAROON);
+
+			DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, name.capacity()), 600, 600, 20, YELLOW);
+
+			if (letterCount < name.capacity())
 			{
-				DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, RED);
+				DrawText("_", static_cast<int>(textBox.x) + 8 + MeasureText(name.data(), 40), static_cast<int>(textBox.y) + 12, 40, MAROON);
 			}
 			else
 			{
-				DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, DARKGRAY);
-			}
-			DrawText(name, (int)textBox.x + 5, (int)textBox.y + 8, 40, MAROON);
-
-			DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, 8), 600, 600, 20, YELLOW);
-
-			if (mouseOnText)
-			{
-				if (letterCount < 9)
-				{
-					DrawText("_", (int)textBox.x + 8 + MeasureText(name, 40), (int)textBox.y + 12, 40, MAROON);
-				}
-				else
-				{
-					DrawText("Press BACKSPACE to delete chars...", 600, 650, 20, YELLOW);
-				}
-				
+				DrawText("Press BACKSPACE to delete chars...", 600, 650, 20, YELLOW);
 			}
 
-			if (letterCount > 0 && letterCount < 9)
+			if (letterCount > 0 && letterCount < name.capacity())
 			{
 				DrawText("PRESS ENTER TO CONTINUE", 600, 800, 40, YELLOW);
 			}
@@ -259,8 +244,8 @@ void Game::Render()
 
 			for (int i = 0; i < Leaderboard.size(); i++)
 			{
-				char* tempNameDisplay = Leaderboard[i].name.data(); //TODO: Use string instead of char
-				DrawText(tempNameDisplay, 50, 140 + (i * 40), 40, YELLOW);
+				const std::string_view tempNameDisplay = Leaderboard[i].name.data();
+				DrawText(tempNameDisplay.data(), 50, 140 + (i * 40), 40, YELLOW);
 				DrawText(TextFormat("%i", Leaderboard[i].score), 350, 140 + (i * 40), 40, YELLOW);
 			}
 		}
@@ -270,11 +255,12 @@ void Game::Render()
 
 void Game::SpawnAliens()
 {
-	for (int row = 0; row < formationHeight; row++) 
+	EntityPositioningData data;
+	for (int row = 0; row < data.formationHeight; row++) 
 	{
-		for (int col = 0; col < formationWidth; col++) 
+		for (int col = 0; col < data.formationWidth; col++) 
 		{
-			Vector2 tmpPos = { static_cast<float>(formationX + 50 + (col * alienSpacing)), static_cast<float>(formationY + (row * alienSpacing)) };
+			Vector2 tmpPos = { static_cast<float>(data.formationX + 50 + (col * data.alienSpacing)), static_cast<float>(data.formationY + (row * data.alienSpacing)) };
 			Aliens.emplace_back(tmpPos);
 		}
 	}
@@ -282,7 +268,7 @@ void Game::SpawnAliens()
 
 void Game::SpawnWalls()
 {
-	float wall_distance = static_cast<float>(GetScreenWidth() / (wallCount + 1.0f));
+	const float wall_distance = static_cast<float>(GetScreenWidth() / wallCount);
 	for (int i = 0; i < wallCount; i++)
 	{
 		Vector2 tmpPos = { wall_distance * (i + 1), static_cast<float>(GetScreenHeight()) - 250.0f };
@@ -290,143 +276,98 @@ void Game::SpawnWalls()
 	}
 }
 
-bool Game::CheckNewHighScore()
+bool Game::CheckNewHighScore() noexcept
 {
-	if (score > Leaderboard[4].score)
-	{
+	return (score > Leaderboard[4].score);
+}
+
+bool Game::InsertNewHighScore(std::string_view Name)
+{
+	Data.name = Name;
+	Data.score = score;
+
+	static constexpr auto isHigher = [&](auto& a, auto& b) { return a.score > b.score; };
+
+	Leaderboard.push_back(Data);
+	std::ranges::sort(Leaderboard, isHigher);
+	Leaderboard.pop_back();
+
+	return true;
+}
+
+bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineStart, Vector2 lineEnd) noexcept
+{
+	if (CheckCollisionPointCircle(lineStart, circlePos, circleRadius) || CheckCollisionPointCircle(lineEnd, circlePos, circleRadius))
 		return true;
-	}
+
+	const auto A = lineStart, B = lineEnd, C = circlePos;
+	const float length = Vector2Distance(A, B);
+	const float dotP = Vector2DotProduct(Vector2Subtract(C, A), Vector2Subtract(B, A)) / static_cast<float>(std::pow(length, 2));
+	const float closestX = A.x + dotP * (B.x - A.x), closestY = A.y + dotP * (B.y - A.y);
+
+	const float buffer = 0.1f;
+	const float closeToStart = Vector2Distance(A, { closestX, closestY }), closeToEnd = Vector2Distance(B, { closestX, closestY });
+	const float closestLength = closeToStart + closeToEnd;
+
+	if (std::abs(closestLength - length) < buffer)
+		return Vector2Distance(C, { closestX, closestY }) < circleRadius;
+
 	return false;
 }
 
-void Game::InsertNewHighScore(std::string Name)
+void Game::BulletVsPlayer() noexcept
 {
-	PlayerData newData;
-	newData.name = Name;
-	newData.score = score;
-
-	for (int i = 0; i < Leaderboard.size(); i++)
+	for (auto& projectile : EnemyProjectiles)
 	{
-		if (newData.score > Leaderboard[i].score)
+		if (CheckCollision({ static_cast<float>(player.PosX), GetScreenHeight() - player.player_base_height },
+			static_cast<float>(player.RADIUS),
+			projectile.lineStart,
+			projectile.lineEnd))
 		{
-
-			Leaderboard.insert(Leaderboard.begin() + i, newData);
-
-			Leaderboard.pop_back();
-
-			break;
+			projectile.active = false;
+			player.lives -= 1;
 		}
 	}
 }
 
-bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineStart, Vector2 lineEnd)
+void Game::BulletVsAlien() noexcept
 {
-	// our objective is to calculate the distance between the closest point on the line to the centre of the circle, 
-	// and determine if it is shorter than the radius.
-
-	// check if either edge of line is within circle
-	if (pointInCircle(circlePos, circleRadius, lineStart) || pointInCircle(circlePos, circleRadius, lineEnd))
+	for (auto& projectile : PlayerProjectiles)
 	{
-		return true;
-	}
-
-	// simplify variables
-	Vector2 A = lineStart;
-	Vector2 B = lineEnd;
-	Vector2 C = circlePos;
-
-	// calculate the length of the line
-	float length = lineLength(A, B);
-	
-	// calculate the dot product
-	float dotP = (((C.x - A.x) * (B.x - A.x)) + ((C.y - A.y) * (B.y - A.y))) / static_cast<float>(pow(length, 2));
-
-	// use dot product to find closest point
-	float closestX = A.x + (dotP * (B.x - A.x));
-	float closestY = A.y + (dotP * (B.y - A.y));
-
-	//find out if coordinates are on the line.
-	// we do this by comparing the distance of the dot to the edges, with two vectors
-	// if the distance of the vectors combined is the same as the length the point is on the line
-
-	//since we are using floating points, we will allow the distance to be slightly innaccurate to create a smoother collision
-	float buffer = 0.1f;
-
-	float closeToStart = lineLength(A, { closestX, closestY }); //closestX + Y compared to line Start
-	float closeToEnd = lineLength(B, { closestX, closestY });	//closestX + Y compared to line End
-
-	float closestLength = closeToStart + closeToEnd;
-
-	if (closestLength == length + buffer || closestLength == length - buffer)
-	{
-		//Point is on the line!
-
-		//Compare length between closest point and circle centre with circle radius
-
-		float closeToCentre = lineLength(A, { closestX, closestY }); //closestX + Y compared to circle centre
-
-		if (closeToCentre < circleRadius)
+		for (auto& alien : Aliens)
 		{
-			//Line is colliding with circle!
-			return true;
-		}
-		else
-		{
-			//Line is not colliding
-			return false;
-		}
-	}
-	else
-	{
-		// Point is not on the line, line is not colliding
-		return false;
-	}
-}
-
-void Game::BulletVsPlayer()
-{
-	for (auto& projectile : Projectiles) //TODO: Make into a for each
-	{
-		if (projectile.type == EntityType::ENEMY_PROJECTILE)
-		{
-			if (CheckCollision({ static_cast<float>(player.PosX), GetScreenHeight() - player.player_base_height },
-				static_cast<float>(player.radius),
-				projectile.lineStart,
-				projectile.lineEnd))
+			if (CheckCollision(alien.position, alien.RADIUS, projectile.lineStart, projectile.lineEnd))
 			{
 				projectile.active = false;
-				player.lives -= 1;
+				alien.active = false;
+				score += 100;
 			}
 		}
 	}
 }
 
-void Game::BulletVsAlien()
+void Game::PlayerBulletVsWall() noexcept
 {
-	for (auto& projectile : Projectiles) //TODO: Make into a for each
+	for (auto& projectile : PlayerProjectiles)
 	{
-		if (projectile.type == EntityType::PLAYER_PROJECTILE)
+		for (auto& wall : Walls)
 		{
-			for (auto& alien : Aliens) //TODO: Make into a for each
+			if (CheckCollision(wall.position, wall.RADIUS, projectile.lineStart, projectile.lineEnd))
 			{
-				if (CheckCollision(alien.position, alien.radius, projectile.lineStart, projectile.lineEnd))
-				{
-					projectile.active = false;
-					alien.active = false;
-					score += 100;
-				}
+				projectile.active = false;
+				wall.health -= 1;
 			}
 		}
 	}
 }
 
-void Game::BulletVsWall()
+void Game::EnemyBulletVsWall() noexcept
 {
-	for (auto& projectile : Projectiles) //TODO: Make into a for each
+	for (auto& projectile : EnemyProjectiles)
 	{
-		for (auto& wall : Walls) //TODO: Make into a for each
+		for (auto& wall : Walls)
 		{
-			if (CheckCollision(wall.position, wall.radius, projectile.lineStart, projectile.lineEnd))
+			if (CheckCollision(wall.position, wall.RADIUS, projectile.lineStart, projectile.lineEnd))
 			{
 				projectile.active = false;
 				wall.health -= 1;
@@ -437,9 +378,9 @@ void Game::BulletVsWall()
 
 void Game::DeleteDeadEntities()
 {
- 	Projectiles.erase(std::remove_if(Projectiles.begin(), Projectiles.end(), [](Projectile x) { return x.active == false; }), Projectiles.end());
-
-	Aliens.erase(std::remove_if(Aliens.begin(), Aliens.end(), [](Alien x) { return x.active == false; }), Aliens.end());
-
-	Walls.erase(std::remove_if(Walls.begin(), Walls.end(), [](Wall x) { return x.active == false; }), Walls.end());
+	static constexpr auto isDead = [](const auto& x) constexpr noexcept { return x.active == false; };
+ 	std::erase_if(PlayerProjectiles, isDead);
+	std::erase_if(EnemyProjectiles, isDead);
+	std::erase_if(Aliens, isDead);
+	std::erase_if(Walls, isDead);
 }
