@@ -10,18 +10,18 @@ class Star
 
 public:
 
-	Star(Vector2 Position, float Size);
+	Star(Vector2 Position, float Size) noexcept;
 	void Render(float ScrollingOffset) const noexcept;
 };
 
 class Background
 {
 public:
-	Background();
+	Background() noexcept;
 	float scrollingOffset = 0.0f;
 	const int starAmmount = 300;
 
 	std::vector<Star> stars;
-	void Update(float ScrollingOffset);
-	void Render();
+	void Update(float ScrollingOffset) noexcept;
+	void Render() const noexcept;
 };

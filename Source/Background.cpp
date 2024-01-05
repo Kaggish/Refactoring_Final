@@ -1,6 +1,6 @@
 #include "BackGround.hpp"
 
-Star::Star(Vector2 Position, float Size)
+Star::Star(Vector2 Position, float Size) noexcept
 	:position(Position)
 	, size(Size)
 {}
@@ -10,7 +10,7 @@ void Star::Render(float ScrollingOffset) const noexcept
 	DrawCircle(static_cast<int>(position.x + (ScrollingOffset / size)), static_cast<int>(position.y), size, COLOR);
 }
 
-Background::Background()
+Background::Background() noexcept
 {
 	for (int i = 0; i < starAmmount; ++i)
 	{
@@ -21,12 +21,12 @@ Background::Background()
 	}
 }
 
-void Background::Update(float ScrollingOffset)
+void Background::Update(float ScrollingOffset) noexcept
 {
 	scrollingOffset = ScrollingOffset;
 }
 
-void Background::Render()
+void Background::Render() const noexcept
 {
 	for (const auto& star : stars)
 	{
