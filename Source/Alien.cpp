@@ -1,33 +1,18 @@
 #include "Alien.hpp"
 
-Alien::Alien(Vector2 Position)
+Alien::Alien(Vector2 Position) noexcept
 	:position(Position)
 {}
 
-void Alien::Update()
+void Alien::Update() noexcept
 {
-	if (moveRight)
-	{
-		position.x += SPEED;
-	}
-	else
-	{
-		position.x -= SPEED;
-	}
+	position.x += (moveRight ? SPEED : -SPEED);
 
-	if (position.x >= GetScreenWidth())
-	{
-		moveRight = false;
-		position.y += 50;
-	}
-	else if (position.x <= 0)
-	{
-		moveRight = true;
-		position.y += 50;
-	}
+	moveRight = (position.x >= GetScreenWidth()) ? false : (position.x <= 0) ? true : moveRight;
+	position.y += (position.x >= GetScreenWidth() || position.x <= 0) ? 50 : 0;
 }
 
-void Alien::Render(Texture2D texture)
+void Alien::Render(Texture2D texture) const noexcept
 {
 	DrawTexture(texture, static_cast<int>(position.x), static_cast<int>(position.y), COLOR);
 }

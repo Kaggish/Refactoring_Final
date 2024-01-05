@@ -1,6 +1,5 @@
 #pragma once
 #include "raylib.h"
-#include "Helper.hpp"
 
 class Alien
 {
@@ -9,16 +8,13 @@ class Alien
 
 public:
 
-	Alien(Vector2 Position);
+	Alien(Vector2 Position) noexcept;
 	Vector2 position = { 0, 0 };
-	static constexpr float radius = 30;
+	static constexpr float RADIUS = 30;
 
 	bool active = true;
 	bool moveRight = true;
 
-	EntityType type = EntityType::ENEMY;
-
-
-	void Update();
-	void Render(Texture2D texture);
+	void Update() noexcept;
+	void Render(Texture2D texture) const noexcept;
 };
