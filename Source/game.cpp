@@ -7,23 +7,14 @@
 
 float lineLength(Vector2 A, Vector2 B) noexcept
 {
-	const float length = sqrtf(static_cast<float>(pow(B.x - A.x, 2) + pow(B.y - A.y, 2)));
-
-	return length;
+	return sqrtf(static_cast<float>(pow(B.x - A.x, 2) + pow(B.y - A.y, 2)));
 }
 
 bool pointInCircle(Vector2 circlePos, float RADIUS, Vector2 point) noexcept
 {
 	const float distanceToCentre = lineLength(circlePos, point);
 
-	if (distanceToCentre < RADIUS)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return (distanceToCentre < RADIUS);
 }
 
 void Game::End() noexcept
@@ -146,19 +137,18 @@ void Game::Update() noexcept
 
 			if (key > 0)
 			{
-				name.push_back(static_cast<char>(key));
+				data.name.push_back(static_cast<char>(key));
 				letterCount++;
 			}
 
-			if (IsKeyPressed(KEY_BACKSPACE) && name.size() > 0)
+			if (IsKeyPressed(KEY_BACKSPACE) && data.name.size() > 0)
 			{
-				name.pop_back();
+				data.name.pop_back();
 			}
 
 			if (letterCount > 0 && letterCount < 9 && IsKeyReleased(KEY_ENTER))
 			{
-				InsertNewHighScore(name);
-
+				InsertNewHighScore();
 				newHighScore = false;
 			}
 		}
@@ -217,20 +207,20 @@ void Game::Render() const noexcept
 			
 			DrawRectangleLines(static_cast<int>(textBox.x), static_cast<int>(textBox.y), static_cast<int>(textBox.width), static_cast<int>(textBox.height), RED);
 
-			DrawText(name.data(), static_cast<int>(textBox.x) + 5, static_cast<int>(textBox.y) + 8, 40, MAROON);
+			DrawText(data.name.data(), static_cast<int>(textBox.x) + 5, static_cast<int>(textBox.y) + 8, 40, MAROON);
 
-			DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, name.capacity()), 600, 600, 20, YELLOW);
+			DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, data.name.capacity()), 600, 600, 20, YELLOW);
 
-			if (letterCount < name.capacity())
+			if (letterCount < data.name.capacity())
 			{
-				DrawText("_", static_cast<int>(textBox.x) + 8 + MeasureText(name.data(), 40), static_cast<int>(textBox.y) + 12, 40, MAROON);
+				DrawText("_", static_cast<int>(textBox.x) + 8 + MeasureText(data.name.data(), 40), static_cast<int>(textBox.y) + 12, 40, MAROON);
 			}
 			else
 			{
 				DrawText("Press BACKSPACE to delete chars...", 600, 650, 20, YELLOW);
 			}
 
-			if (letterCount > 0 && letterCount < name.capacity())
+			if (letterCount > 0 && letterCount < data.name.capacity())
 			{
 				DrawText("PRESS ENTER TO CONTINUE", 600, 800, 40, YELLOW);
 			}
@@ -244,8 +234,7 @@ void Game::Render() const noexcept
 
 			for (int i = 0; i < Leaderboard.size(); i++)
 			{
-				const std::string_view tempNameDisplay = Leaderboard[i].name.data();
-				DrawText(tempNameDisplay.data(), 50, 140 + (i * 40), 40, YELLOW);
+				DrawText(Leaderboard[i].name.data(), 50, 140 + (i * 40), 40, YELLOW);
 				DrawText(TextFormat("%i", Leaderboard[i].score), 350, 140 + (i * 40), 40, YELLOW);
 			}
 		}
@@ -255,12 +244,11 @@ void Game::Render() const noexcept
 
 void Game::SpawnAliens()
 {
-	EntityPositioningData data;
-	for (int row = 0; row < data.formationHeight; row++) 
+	for (int row = 0; row < entityData.formationHeight; row++) 
 	{
-		for (int col = 0; col < data.formationWidth; col++) 
+		for (int col = 0; col < entityData.formationWidth; col++) 
 		{
-			Vector2 tmpPos = { static_cast<float>(data.formationX + 50 + (col * data.alienSpacing)), static_cast<float>(data.formationY + (row * data.alienSpacing)) };
+			Vector2 tmpPos = { static_cast<float>(entityData.formationX + 50 + (col * entityData.alienSpacing)), static_cast<float>(entityData.formationY + (row * entityData.alienSpacing)) };
 			Aliens.emplace_back(tmpPos);
 		}
 	}
@@ -278,17 +266,16 @@ void Game::SpawnWalls()
 
 bool Game::CheckNewHighScore() noexcept
 {
-	return (score > Leaderboard[4].score);
+	return (score >= Leaderboard[4].score);
 }
 
-bool Game::InsertNewHighScore(std::string_view Name)
+bool Game::InsertNewHighScore()
 {
-	Data.name = Name;
-	Data.score = score;
+	data.score = score;
 
-	static constexpr auto isHigher = [&](auto& a, auto& b) { return a.score > b.score; };
+	static constexpr auto isHigher = [&](auto& a, auto& b) { return a.score >= b.score; };
 
-	Leaderboard.push_back(Data);
+	Leaderboard.push_back(data);
 	std::ranges::sort(Leaderboard, isHigher);
 	Leaderboard.pop_back();
 
@@ -297,8 +284,7 @@ bool Game::InsertNewHighScore(std::string_view Name)
 
 bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineStart, Vector2 lineEnd) noexcept
 {
-	if (CheckCollisionPointCircle(lineStart, circlePos, circleRadius) || CheckCollisionPointCircle(lineEnd, circlePos, circleRadius))
-		return true;
+	if (CheckCollisionPointCircle(lineStart, circlePos, circleRadius) || CheckCollisionPointCircle(lineEnd, circlePos, circleRadius)) { return true; };
 
 	const auto A = lineStart, B = lineEnd, C = circlePos;
 	const float length = Vector2Distance(A, B);
@@ -310,7 +296,9 @@ bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineSta
 	const float closestLength = closeToStart + closeToEnd;
 
 	if (std::abs(closestLength - length) < buffer)
+	{
 		return Vector2Distance(C, { closestX, closestY }) < circleRadius;
+	}
 
 	return false;
 }

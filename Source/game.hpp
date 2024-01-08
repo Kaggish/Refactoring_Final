@@ -48,13 +48,13 @@ class Game
 	Vector2 cornerPos = {};
 	float offset = 0;
 
-	std::string name = {};
 	Rectangle textBox = { 600, 500, 225, 50 };
 
 	Resources resources;
 
 	Player player{ GetScreenWidth() / 2 };
-	PlayerData Data;
+	PlayerData data;
+	EntityPositioningData entityData;
 
 	std::vector<Projectile> PlayerProjectiles;
 	std::vector<Projectile> EnemyProjectiles;
@@ -80,7 +80,7 @@ class Game
 
 	bool CheckNewHighScore() noexcept;
 
-	bool InsertNewHighScore(std::string_view name);
+	bool InsertNewHighScore();
 
 public:
 	void Input() noexcept;
