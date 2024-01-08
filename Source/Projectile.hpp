@@ -1,14 +1,19 @@
 #pragma once
 #include "raylib.h"
-#include "Helper.hpp"
 
-class Projectile //TODO: Make into its own class
+enum struct BulletType
+{
+	PLAYER_PROJECTILE,
+	ENEMY_PROJECTILE
+};
+
+class Projectile
 {
 	int SPEED = 15;
 
 public:
-	EntityType type = {};
-	Projectile(Vector2 Position, EntityType Type);
+	BulletType type = {};
+	Projectile(Vector2 Position, BulletType type) noexcept;
 
 	Vector2 position = { 0,0 };
 	Vector2 lineStart = { 0, 0 };
@@ -16,6 +21,6 @@ public:
 
 	bool active = true;
 
-	void Update();
-	void Render(Texture2D texture);
+	void Update() noexcept;
+	void Render(Texture2D texture) const noexcept;
 };
