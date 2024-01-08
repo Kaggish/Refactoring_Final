@@ -49,7 +49,8 @@ struct TextureData
 struct Resources
 {
     std::vector<TextureData> shipTextures;
-    Resources() 
+    
+    Resources() noexcept
     {
         shipTextures.emplace_back("./Assets/Ship1.png"sv);
         shipTextures.emplace_back("./Assets/Ship2.png"sv);
