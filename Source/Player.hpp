@@ -6,10 +6,9 @@ class Player
 	static constexpr int SPEED = 7;
 
 public:
-	Player(int PositionX) noexcept;
 
 	int lives = 3;
-	int PosX = 0;
+	int PosX = GetScreenWidth() / 2;
 	int RADIUS = 50;
 	int direction = 0;
 	int activeTexture = 0;

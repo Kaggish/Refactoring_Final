@@ -1,9 +1,5 @@
 #include "Alien.hpp"
 
-Alien::Alien(Vector2 Position) noexcept
-	:position(Position)
-{}
-
 void Alien::Update() noexcept
 {
 	position.x += (moveRight ? SPEED : -SPEED);

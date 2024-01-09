@@ -1,20 +1,8 @@
 #include "Player.hpp"
 
-Player::Player(int PositionX) noexcept
-	:PosX(PositionX)
-{}
-
 int Player::Boundaries() noexcept
 {
-	if (PosX < 0)
-	{
-		return PosX = 0;
-	}
-	else if (PosX > GetScreenWidth() - RADIUS)
-	{
-		return PosX = GetScreenWidth() - RADIUS;
-	}
-	return PosX = PosX;
+	return PosX = (PosX < 0) ? 0 : (PosX > GetScreenWidth() - RADIUS) ? GetScreenWidth() - RADIUS : PosX;
 }
 
 void Player::Input() noexcept

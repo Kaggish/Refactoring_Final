@@ -4,12 +4,11 @@
 class Wall
 {
 public:
-	Wall(Vector2 Position) noexcept;
-
+	static constexpr float RADIUS = 45;		
 	Vector2 position = {};
 	int health = 50;
 	bool active = true;
-	float RADIUS = 45;
+	
 
 	void Update() noexcept;
 	void Render(Texture2D texture) const noexcept;

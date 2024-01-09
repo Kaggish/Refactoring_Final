@@ -1,13 +1,15 @@
 #include "Wall.hpp"
 
-Wall::Wall(Vector2 Position) noexcept
-	:position(Position)
-{}
+
 
 void Wall::Render(Texture2D texture) const noexcept
 {
-	DrawTexture(texture, static_cast<int>(position.x), static_cast<int>(position.y), WHITE);
-	DrawText(TextFormat("%i", health), static_cast<int>(position.x + 10.0f), static_cast<int>(position.y + 50.0f), 20, RED);
+	static constexpr auto LABEL_OFFSET_X = 10;
+	static constexpr auto LABEL_OFFSET_Y = 50;
+	const auto x = static_cast<int>(position.x);
+	const auto y = static_cast<int>(position.y);
+	DrawTexture(texture, x, y, WHITE);
+	DrawText(TextFormat("%i", health), x + LABEL_OFFSET_X, y + LABEL_OFFSET_Y, 20, RED);
 }
 
 void Wall::Update() noexcept
