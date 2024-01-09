@@ -7,8 +7,6 @@ class Alien
 	static constexpr int SPEED = 2;
 
 public:
-
-	Alien(Vector2 Position) noexcept;
 	Vector2 position = { 0, 0 };
 	static constexpr float RADIUS = 30;
 
