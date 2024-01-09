@@ -9,11 +9,10 @@ enum struct BulletType
 
 class Projectile
 {
-	int SPEED = 15;
+	int SPEED = {};
 
 public:
-	BulletType type = {};
-	Projectile(Vector2 Position, BulletType type) noexcept;
+	Projectile(Vector2 Position, int speed) noexcept;
 
 	Vector2 position = { 0,0 };
 	Vector2 lineStart = { 0, 0 };

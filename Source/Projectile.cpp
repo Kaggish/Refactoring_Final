@@ -1,16 +1,11 @@
 #include "Projectile.hpp"
 
-Projectile::Projectile(Vector2 Position, BulletType Type) noexcept
+Projectile::Projectile(Vector2 Position, int speed) noexcept
 	:position(Position)
-	,type(Type)
+	,SPEED(speed)
 	,lineStart({position.x , -15.0f})
 	,lineEnd({position.x, 15.0f})
-{
-	if (type == BulletType::ENEMY_PROJECTILE) {
-		SPEED *= -1;
-		position.y += 40;
-	}
-}
+{}
 
 void Projectile::Update() noexcept
 {
