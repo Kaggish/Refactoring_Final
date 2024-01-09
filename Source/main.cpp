@@ -1,30 +1,34 @@
 #include "raylib.h"
 #include "game.hpp"
+#include "Window.hpp"
+#include <print>
 
 int main(void)
-{    
-    const int screenWidth = 1280;
-    const int screenHeight = 920;
+{
+	constexpr int screenWidth = 1280;
+	constexpr int screenHeight = 920;
+	try {
+		Window window(screenWidth, screenHeight, "SPACE INVADERS");
+		Game game;
+		Resources resources;
 
-    InitWindow(screenWidth, screenHeight, "SPACE INVADERS");
+		SetTargetFPS(60);
 
-    SetTargetFPS(60);
+		//TODO: catch and handle the exceptions
 
-    Game game;
-    Resources resources;
-    
-    while (!WindowShouldClose())
-    {
+		while (!WindowShouldClose())
+		{
+			game.Input();
+			game.Update();
 
-        game.Input();
-        game.Update();
-
-        BeginDrawing();
-        ClearBackground(BLACK);
-        game.Render();
-        EndDrawing();
-    }
-    CloseWindow();
-
-    return 0;
+			BeginDrawing();
+			ClearBackground(BLACK);
+			game.Render();
+			EndDrawing();
+		}
+	}
+	catch (const std::runtime_error& e) {
+		std::println("Error: Game cannot run", e.what());
+	}
+	return 0;
 }
