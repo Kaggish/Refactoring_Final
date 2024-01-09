@@ -3,7 +3,6 @@
 
 Window::Window(const int screenWidth, const int screenHeight, std::string_view title) noexcept
 {
-	//TODO: no error checking?!
 	try
 	{
 		InitWindow(screenWidth, screenHeight, title.data());

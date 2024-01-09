@@ -14,8 +14,6 @@ int main(void)
 
 		SetTargetFPS(60);
 
-		//TODO: catch and handle the exceptions
-
 		while (!WindowShouldClose())
 		{
 			game.Input();
