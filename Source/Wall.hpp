@@ -9,7 +9,5 @@ public:
 	int health = 50;
 	bool active = true;
 	
-
-	void Update() noexcept;
 	void Render(Texture2D texture) const noexcept;
 };
