@@ -2,7 +2,7 @@
 
 Star::Star(Vector2 Position, float Size) noexcept
 	:position(Position)
-	, size(Size)
+	,size(Size)
 {}
 
 void Star::Render(float ScrollingOffset) const noexcept
