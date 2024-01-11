@@ -5,8 +5,8 @@
 
 int main(void)
 {
-	constexpr int screenWidth = 1280;
-	constexpr int screenHeight = 920;
+	constexpr int screenWidth = 1920;
+	constexpr int screenHeight = 1080;
 	try {
 		Window window(screenWidth, screenHeight, "SPACE INVADERS");
 		Game game;
