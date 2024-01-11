@@ -1,7 +1,4 @@
 #include "game.hpp"
-#include "Wall.hpp"
-#include "Alien.hpp"
-#include "Projectile.hpp"
 #include "algorithm"
 #include "raymath.h"
 
@@ -10,26 +7,14 @@ float lineLength(Vector2 A, Vector2 B) noexcept
 	return sqrtf(static_cast<float>(pow(B.x - A.x, 2) + pow(B.y - A.y, 2)));
 }
 
-bool pointInCircle(Vector2 circlePos, float RADIUS, Vector2 point) noexcept
-{
-	const float distanceToCentre = lineLength(circlePos, point);
-
-	return (distanceToCentre < RADIUS);
-}
-
 void Game::End() noexcept
 {
 	PlayerProjectiles.clear();
 	EnemyProjectiles.clear();
 	Walls.clear();
 	Aliens.clear();
-	newHighScore = CheckNewHighScore();
+	score.highScore = score.CheckNewHighScore();
 	gameState = State::ENDSCREEN;
-}
-
-void Game::Continue() noexcept
-{
-	gameState = State::MENU;
 }
 
 void Game::Input() noexcept
@@ -46,8 +31,8 @@ void Game::Update() noexcept
 		{
 			gameState = State::RUNNING;
 			SpawnWalls();
-			score = 0;
 			player.lives = 3;
+			score.scorepoints = 0;
 		}
 		break;
 
@@ -89,11 +74,6 @@ void Game::Update() noexcept
 			projectile.Update();
 		}
 
-		for (auto& wall : Walls)
-		{
-			wall.Update();
-		}
-
 		playerPos = { static_cast<float>(player.PosX), static_cast<float>(player.player_base_height) };
 		cornerPos = { 0, static_cast<float>(player.player_base_height) };
 		offset = lineLength(playerPos, cornerPos) * -1;
@@ -108,7 +88,8 @@ void Game::Update() noexcept
 		{
 			const float window_height = static_cast<float>(GetScreenHeight());
 			Vector2 tmpPos = { static_cast<float>(player.PosX), window_height - 130 }; //TODO: magical value
-			PlayerProjectiles.emplace_back(tmpPos, BulletType::PLAYER_PROJECTILE);
+			constexpr auto SPEED = 15;
+			PlayerProjectiles.emplace_back(tmpPos, SPEED);
 		}
 
 		if (shootTimer > 59)
@@ -116,7 +97,8 @@ void Game::Update() noexcept
 			const int randomAlienIndex = rand() % Aliens.size();
 
 			Vector2 tmpPos = { Aliens[randomAlienIndex].position.x, Aliens[randomAlienIndex].position.y };
-			EnemyProjectiles.emplace_back(tmpPos, BulletType::ENEMY_PROJECTILE);
+			constexpr auto SPEED = -15;
+			EnemyProjectiles.emplace_back(tmpPos, SPEED);
 			shootTimer = 0;
 		}
 
@@ -126,32 +108,11 @@ void Game::Update() noexcept
 
 	break;
 	case State::ENDSCREEN:
-		if (IsKeyReleased(KEY_ENTER) && !newHighScore)
+		if (IsKeyPressed(KEY_ENTER) && !score.highScore)
 		{
-			Continue();
+			gameState = State::MENU;
 		}
-
-		if (newHighScore)
-		{
-			const int key = GetCharPressed();
-
-			if (key > 0)
-			{
-				data.name.push_back(static_cast<char>(key));
-				letterCount++;
-			}
-
-			if (IsKeyPressed(KEY_BACKSPACE) && data.name.size() > 0)
-			{
-				data.name.pop_back();
-			}
-
-			if (letterCount > 0 && letterCount < 9 && IsKeyReleased(KEY_ENTER))
-			{
-				InsertNewHighScore();
-				newHighScore = false;
-			}
-		}
+		score.Update();
 
 		break;
 	}
@@ -169,7 +130,7 @@ void Game::Render() const noexcept
 	case State::RUNNING:
 		background.Render();
 	
-		DrawText(TextFormat("Score: %i", score), 50, 20, 40, YELLOW);
+		DrawText(TextFormat("Score: %i", score.scorepoints), 50, 20, 40, YELLOW);
 		DrawText(TextFormat("Lives: %i", player.lives), 50, 70, 40, YELLOW);
 
 		player.Render(resources.shipTextures[player.activeTexture].get());
@@ -196,48 +157,7 @@ void Game::Render() const noexcept
 
 		break;
 	case State::ENDSCREEN:
-
-		if (newHighScore)
-		{
-			DrawText("NEW HIGHSCORE!", 600, 300, 60, YELLOW);
-
-			DrawText("Write your name", 600, 400, 20, YELLOW);
-
-			DrawRectangleRec(textBox, LIGHTGRAY);
-			
-			DrawRectangleLines(static_cast<int>(textBox.x), static_cast<int>(textBox.y), static_cast<int>(textBox.width), static_cast<int>(textBox.height), RED);
-
-			DrawText(data.name.data(), static_cast<int>(textBox.x) + 5, static_cast<int>(textBox.y) + 8, 40, MAROON);
-
-			DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, data.name.capacity()), 600, 600, 20, YELLOW);
-
-			if (letterCount < data.name.capacity())
-			{
-				DrawText("_", static_cast<int>(textBox.x) + 8 + MeasureText(data.name.data(), 40), static_cast<int>(textBox.y) + 12, 40, MAROON);
-			}
-			else
-			{
-				DrawText("Press BACKSPACE to delete chars...", 600, 650, 20, YELLOW);
-			}
-
-			if (letterCount > 0 && letterCount < data.name.capacity())
-			{
-				DrawText("PRESS ENTER TO CONTINUE", 600, 800, 40, YELLOW);
-			}
-
-		}
-		else 
-		{
-			DrawText("PRESS ENTER TO CONTINUE", 600, 200, 40, YELLOW);
-
-			DrawText("LEADERBOARD", 50, 100, 40, YELLOW);
-
-			for (int i = 0; i < Leaderboard.size(); i++)
-			{
-				DrawText(Leaderboard[i].name.data(), 50, 140 + (i * 40), 40, YELLOW);
-				DrawText(TextFormat("%i", Leaderboard[i].score), 350, 140 + (i * 40), 40, YELLOW);
-			}
-		}
+		score.Render();
 		break;
 	}
 }
@@ -256,43 +176,31 @@ void Game::SpawnAliens()
 
 void Game::SpawnWalls()
 {
-	const float wall_distance = static_cast<float>(GetScreenWidth() / wallCount);
+	const int wall_distance = GetScreenWidth() / (wallCount + 1);
 	for (int i = 0; i < wallCount; i++)
 	{
-		Vector2 tmpPos = { wall_distance * (i + 1), static_cast<float>(GetScreenHeight()) - 250.0f };
+		Vector2 tmpPos = { static_cast<float>(wall_distance) * (i + 1), static_cast<float>(GetScreenHeight()) - 250.0f };			
 		Walls.emplace_back(tmpPos);
 	}
 }
 
-bool Game::CheckNewHighScore() noexcept
-{
-	return (score >= Leaderboard[4].score);
-}
-
-bool Game::InsertNewHighScore()
-{
-	data.score = score;
-
-	static constexpr auto isHigher = [&](auto& a, auto& b) { return a.score >= b.score; };
-
-	Leaderboard.push_back(data);
-	std::ranges::sort(Leaderboard, isHigher);
-	Leaderboard.pop_back();
-
-	return true;
-}
-
 bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineStart, Vector2 lineEnd) noexcept
 {
-	if (CheckCollisionPointCircle(lineStart, circlePos, circleRadius) || CheckCollisionPointCircle(lineEnd, circlePos, circleRadius)) { return true; };
+	if (CheckCollisionPointCircle(lineStart, circlePos, circleRadius) || CheckCollisionPointCircle(lineEnd, circlePos, circleRadius)) 
+	{ 
+		return true;
+	}
 
-	const auto A = lineStart, B = lineEnd, C = circlePos;
+	const auto A = lineStart;
+	const auto	B = lineEnd;
+	const auto C = circlePos;
 	const float length = Vector2Distance(A, B);
-	const float dotP = Vector2DotProduct(Vector2Subtract(C, A), Vector2Subtract(B, A)) / static_cast<float>(std::pow(length, 2));
+	const float dotP = Vector2DotProduct(Vector2Subtract(C, A), Vector2Subtract(B, A)) / std::powf(length, 2);
 	const float closestX = A.x + dotP * (B.x - A.x), closestY = A.y + dotP * (B.y - A.y);
 
 	const float buffer = 0.1f;
-	const float closeToStart = Vector2Distance(A, { closestX, closestY }), closeToEnd = Vector2Distance(B, { closestX, closestY });
+	const float closeToStart = Vector2Distance(A, { closestX, closestY });
+	const float closeToEnd = Vector2Distance(B, { closestX, closestY });
 	const float closestLength = closeToStart + closeToEnd;
 
 	if (std::abs(closestLength - length) < buffer)
@@ -324,11 +232,11 @@ void Game::BulletVsAlien() noexcept
 	{
 		for (auto& alien : Aliens)
 		{
-			if (CheckCollision(alien.position, alien.RADIUS, projectile.lineStart, projectile.lineEnd))
+			if (CheckCollision(alien.position, Alien::RADIUS, projectile.lineStart, projectile.lineEnd))
 			{
 				projectile.active = false;
 				alien.active = false;
-				score += 100;
+				score.scorepoints += 100;
 			}
 		}
 	}
@@ -340,10 +248,14 @@ void Game::PlayerBulletVsWall() noexcept
 	{
 		for (auto& wall : Walls)
 		{
-			if (CheckCollision(wall.position, wall.RADIUS, projectile.lineStart, projectile.lineEnd))
+			if (CheckCollision(wall.position, Wall::RADIUS, projectile.lineStart, projectile.lineEnd))
 			{
 				projectile.active = false;
 				wall.health -= 1;
+				if (wall.health < 1)
+				{
+					wall.active = false;
+				}
 			}
 		}
 	}
@@ -355,10 +267,14 @@ void Game::EnemyBulletVsWall() noexcept
 	{
 		for (auto& wall : Walls)
 		{
-			if (CheckCollision(wall.position, wall.RADIUS, projectile.lineStart, projectile.lineEnd))
+			if (CheckCollision(wall.position, Wall::RADIUS, projectile.lineStart, projectile.lineEnd))
 			{
 				projectile.active = false;
 				wall.health -= 1;
+				if (wall.health < 1)
+				{
+					wall.active = false;
+				}
 			}
 		}
 	}
