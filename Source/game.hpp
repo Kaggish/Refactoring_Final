@@ -6,6 +6,7 @@
 #include "Wall.hpp"
 #include "Alien.hpp"
 #include "Projectile.hpp"
+#include "Score.hpp"
 #include <vector>
 #include <string>
 
@@ -15,12 +16,6 @@ enum struct State
 	RUNNING,
 	ENDSCREEN
 }; 
-
-struct PlayerData
-{
-	std::string name = {};
-	int score = 0;
-};
 
 struct EntityPositioningData
 {
@@ -35,36 +30,29 @@ class Game
 {
 	State gameState = State::MENU;
 
-	bool newHighScore = false;
-
 	float shootTimer = 0;
 
 	const int wallCount = 5;
-	int score = 0;
-	int letterCount = 0;;
 
 	Vector2 playerPos = {};
 	Vector2 alienPos = {};
 	Vector2 cornerPos = {};
 	float offset = 0;
 
-	Rectangle textBox = { 600, 500, 225, 50 };
-
 	Resources resources;
 
 	Player player{ GetScreenWidth() / 2 };
-	PlayerData data;
 	EntityPositioningData entityData;
 
 	std::vector<Projectile> PlayerProjectiles;
 	std::vector<Projectile> EnemyProjectiles;
 	std::vector<Wall> Walls;
 	std::vector<Alien> Aliens;
-	std::vector<PlayerData> Leaderboard = { {"Player 1", 500}, {"Player 2", 400}, {"Player 3", 300}, {"Player 4", 200}, {"Player 5", 100} };
+
+	Score score;
 
 	Background background;
 
-	void Continue() noexcept;
 	void End() noexcept;
 
 	void SpawnAliens();
@@ -77,10 +65,6 @@ class Game
 	void PlayerBulletVsWall() noexcept;
 	void EnemyBulletVsWall() noexcept;
 	void DeleteDeadEntities();
-
-	bool CheckNewHighScore() noexcept;
-
-	bool InsertNewHighScore();
 
 public:
 	void Input() noexcept;
