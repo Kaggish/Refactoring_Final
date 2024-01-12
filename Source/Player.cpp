@@ -1,8 +1,8 @@
 #include "Player.hpp"
 
-int Player::Boundaries() noexcept
+float Player::Boundaries() noexcept
 {
-	return PosX = (PosX < 0) ? 0 : (PosX > GetScreenWidth() - RADIUS) ? GetScreenWidth() - RADIUS : PosX;
+	return position.x = (position.x < 0) ? 0 : (position.x > GetScreenWidth() - RADIUS) ? GetScreenWidth() - RADIUS : position.x;
 }
 
 void Player::Input() noexcept
@@ -20,7 +20,7 @@ void Player::Input() noexcept
 
 void Player::Update() noexcept
 {
-	PosX += SPEED * direction;
+	position.x += SPEED * direction;
 	Boundaries();
 
 	//Animate()
@@ -40,6 +40,5 @@ void Player::Update() noexcept
 
 void Player::Render(Texture2D texture) const noexcept
 {
-	const float window_height = static_cast<float>(GetScreenHeight());
-	DrawTexture(texture, static_cast<int>(PosX), static_cast<int>(window_height - player_base_height), WHITE);
+	DrawTextureV(texture, { position.x - RADIUS, position.y - RADIUS }, WHITE);
 }
