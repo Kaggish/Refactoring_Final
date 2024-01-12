@@ -4,7 +4,7 @@
 class Wall
 {
 public:
-	static constexpr float RADIUS = 45;		
+	static constexpr float RADIUS = 60;		
 	Vector2 position = {};
 	int health = 50;
 	bool active = true;

@@ -6,6 +6,6 @@ void Wall::Render(Texture2D texture) const noexcept
 	static constexpr auto LABEL_OFFSET_Y = 50;
 	const auto x = static_cast<int>(position.x);
 	const auto y = static_cast<int>(position.y);
-	DrawTexture(texture, x, y, WHITE);
-	DrawText(TextFormat("%i", health), x + LABEL_OFFSET_X, y + LABEL_OFFSET_Y, 20, RED);
+	DrawTextureV(texture, { position.x - RADIUS, position.y - RADIUS }, WHITE);
+	DrawText(TextFormat("%i", health), x + LABEL_OFFSET_X, y + LABEL_OFFSET_Y, 40, RED);
 }
