@@ -22,5 +22,5 @@ void Projectile::Update() noexcept
 
 void Projectile::Render(Texture2D texture) const noexcept
 {
-	DrawTexture(texture, static_cast<int>(position.x), static_cast<int>(position.y), WHITE);
+	DrawTextureV(texture, position, WHITE);
 }
