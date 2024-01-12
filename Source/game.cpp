@@ -1,5 +1,4 @@
 #include "game.hpp"
-#include "algorithm"
 #include "raymath.h"
 
 float lineLength(Vector2 A, Vector2 B) noexcept
@@ -22,7 +21,7 @@ void Game::Input() noexcept
 	player.Input();
 }
 
-void Game::Update() noexcept
+void Game::Update()
 {
 	switch (gameState)
 	{
@@ -74,9 +73,9 @@ void Game::Update() noexcept
 			projectile.Update();
 		}
 
-		playerPos = { static_cast<float>(player.PosX), static_cast<float>(player.player_base_height) };
+		
 		cornerPos = { 0, static_cast<float>(player.player_base_height) };
-		offset = lineLength(playerPos, cornerPos) * -1;
+		offset = lineLength(player.position, cornerPos) * -1;
 		background.Update(offset / 15);
 
 		PlayerBulletVsWall();
@@ -87,7 +86,7 @@ void Game::Update() noexcept
 		if (IsKeyPressed(KEY_SPACE))
 		{
 			const float window_height = static_cast<float>(GetScreenHeight());
-			Vector2 tmpPos = { static_cast<float>(player.PosX), window_height - 130 }; //TODO: magical value
+			Vector2 tmpPos = { static_cast<float>(player.position.x - (player.RADIUS / 2.0f)), window_height - 130 }; //TODO: magical value
 			constexpr auto SPEED = 15;
 			PlayerProjectiles.emplace_back(tmpPos, SPEED);
 		}
@@ -95,7 +94,7 @@ void Game::Update() noexcept
 		if (shootTimer > 59)
 		{
 			const int randomAlienIndex = rand() % Aliens.size();
-
+			[[gsl::suppress(bounds.4)]]
 			Vector2 tmpPos = { Aliens[randomAlienIndex].position.x, Aliens[randomAlienIndex].position.y };
 			constexpr auto SPEED = -15;
 			EnemyProjectiles.emplace_back(tmpPos, SPEED);
@@ -133,24 +132,25 @@ void Game::Render() const noexcept
 		DrawText(TextFormat("Score: %i", score.scorepoints), 50, 20, 40, YELLOW);
 		DrawText(TextFormat("Lives: %i", player.lives), 50, 70, 40, YELLOW);
 
+		[[gsl::suppress(bounds.4)]]
 		player.Render(resources.shipTextures[player.activeTexture].get());
 
-		for (auto& projectile : PlayerProjectiles)
+		for (const auto& projectile : PlayerProjectiles)
 		{
 			projectile.Render(resources.laserTexture.get());
 		}
 
-		for (auto& projectile : EnemyProjectiles)
+		for (const auto& projectile : EnemyProjectiles)
 		{
 			projectile.Render(resources.laserTexture.get());
 		}
 
-		for (auto& wall : Walls)
+		for (const auto& wall : Walls)
 		{
 			wall.Render(resources.barrierTexture.get());
 		}
 
-		for (auto& alien : Aliens)
+		for (const auto& alien : Aliens)
 		{
 			alien.Render(resources.alienTexture.get());
 		}
@@ -184,7 +184,7 @@ void Game::SpawnWalls()
 	}
 }
 
-bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineStart, Vector2 lineEnd) noexcept
+bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineStart, Vector2 lineEnd)
 {
 	if (CheckCollisionPointCircle(lineStart, circlePos, circleRadius) || CheckCollisionPointCircle(lineEnd, circlePos, circleRadius)) 
 	{ 
@@ -197,7 +197,8 @@ bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineSta
 	const float length = Vector2Distance(A, B);
 	const float dotP = Vector2DotProduct(Vector2Subtract(C, A), Vector2Subtract(B, A)) / std::powf(length, 2);
 	const float closestX = A.x + dotP * (B.x - A.x), closestY = A.y + dotP * (B.y - A.y);
-
+	
+	[[gsl::suppress(con.5)]]
 	const float buffer = 0.1f;
 	const float closeToStart = Vector2Distance(A, { closestX, closestY });
 	const float closeToEnd = Vector2Distance(B, { closestX, closestY });
@@ -211,11 +212,11 @@ bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineSta
 	return false;
 }
 
-void Game::BulletVsPlayer() noexcept
+void Game::BulletVsPlayer()
 {
 	for (auto& projectile : EnemyProjectiles)
 	{
-		if (CheckCollision({ static_cast<float>(player.PosX), GetScreenHeight() - player.player_base_height },
+		if (CheckCollision({ static_cast<float>(player.position.x), GetScreenHeight() - player.player_base_height },
 			static_cast<float>(player.RADIUS),
 			projectile.lineStart,
 			projectile.lineEnd))
@@ -226,7 +227,7 @@ void Game::BulletVsPlayer() noexcept
 	}
 }
 
-void Game::BulletVsAlien() noexcept
+void Game::BulletVsAlien()
 {
 	for (auto& projectile : PlayerProjectiles)
 	{
@@ -242,7 +243,7 @@ void Game::BulletVsAlien() noexcept
 	}
 }
 
-void Game::PlayerBulletVsWall() noexcept
+void Game::PlayerBulletVsWall()
 {
 	for (auto& projectile : PlayerProjectiles)
 	{
@@ -261,7 +262,7 @@ void Game::PlayerBulletVsWall() noexcept
 	}
 }
 
-void Game::EnemyBulletVsWall() noexcept
+void Game::EnemyBulletVsWall()
 {
 	for (auto& projectile : EnemyProjectiles)
 	{

@@ -1,4 +1,16 @@
 #pragma once
+
+#include <codeanalysis\warnings.h>
+
+#pragma warning(push)
+
+#pragma warning(disable:ALL_CODE_ANALYSIS_WARNINGS)
+
+#include <raylib.h>
+#include <raymath.h>
+
+#pragma warning(pop)
+
 #include "raylib.h"
 #include "Background.hpp"
 #include "Resources.hpp"
@@ -41,7 +53,7 @@ class Game
 
 	Resources resources;
 
-	Player player{ GetScreenWidth() / 2 };
+	Player player;
 	EntityPositioningData entityData;
 
 	std::vector<Projectile> PlayerProjectiles;
@@ -58,16 +70,16 @@ class Game
 	void SpawnAliens();
 	void SpawnWalls();
 
-	bool CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineTop, Vector2 lineBottom) noexcept;
+	bool CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineTop, Vector2 lineBottom);
 
-	void BulletVsPlayer() noexcept;
-	void BulletVsAlien() noexcept;
-	void PlayerBulletVsWall() noexcept;
-	void EnemyBulletVsWall() noexcept;
+	void BulletVsPlayer();
+	void BulletVsAlien();
+	void PlayerBulletVsWall();
+	void EnemyBulletVsWall();
 	void DeleteDeadEntities();
 
 public:
 	void Input() noexcept;
-	void Update() noexcept;
+	void Update();
 	void Render() const noexcept;
 };
