@@ -58,8 +58,6 @@ struct Resources
 
     [[gsl::suppress(f.6)]]
     TextureData alienTexture = TextureData("./Assets/Alien.png"sv);
-    [[gsl::suppress(f.6)]]
     TextureData barrierTexture = TextureData("./Assets/Barrier.png"sv);
-    [[gsl::suppress(f.6)]]
     TextureData laserTexture = TextureData("./Assets/Laser.png"sv);
 };
