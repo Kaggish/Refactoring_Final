@@ -189,6 +189,7 @@
     <ClInclude Include="Source\Animation.hpp" />
     <ClInclude Include="Source\Background.hpp" />
     <ClInclude Include="Source\game.hpp" />
+    <ClInclude Include="Source\Helper.hpp" />
     <ClInclude Include="Source\Player.hpp" />
     <ClInclude Include="Source\Projectile.hpp" />
     <ClInclude Include="Source\Resources.hpp" />
