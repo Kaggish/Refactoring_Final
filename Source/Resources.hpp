@@ -1,4 +1,3 @@
-#include <iostream>
 #include <string_view>
 #include <stdexcept>
 #include <format>
@@ -57,7 +56,10 @@ struct Resources
         shipTextures.emplace_back("./Assets/Ship3.png"sv);
     }
 
+    [[gsl::suppress(f.6)]]
     TextureData alienTexture = TextureData("./Assets/Alien.png"sv);
+    [[gsl::suppress(f.6)]]
     TextureData barrierTexture = TextureData("./Assets/Barrier.png"sv);
+    [[gsl::suppress(f.6)]]
     TextureData laserTexture = TextureData("./Assets/Laser.png"sv);
 };

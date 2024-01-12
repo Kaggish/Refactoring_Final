@@ -9,6 +9,7 @@ Window::Window(const int screenWidth, const int screenHeight, std::string_view t
 	}
 	catch(const std::runtime_error& e)
 	{
+		[[gsl::suppress(f.6)]]
 		std::println("Error: Could not create window", e.what());
 	}
 }
