@@ -1,7 +1,7 @@
 #include "Score.hpp"
 #include <algorithm>
 
-void Score::Update() noexcept
+void Score::Update()
 {
 	if (highScore)
 	{
@@ -9,6 +9,7 @@ void Score::Update() noexcept
 
 		if (key > 0)
 		{
+			[[gsl::suppress(type.1)]]
 			name.push_back(static_cast<char>(key));
 			letterCount++;
 		}
@@ -21,6 +22,8 @@ void Score::Update() noexcept
 		if (letterCount > 0 && letterCount < 9 && IsKeyPressed(KEY_ENTER))
 		{
 			InsertNewHighScore();
+			name.clear();
+			letterCount = 0;
 			highScore = false;
 		}
 	}
@@ -65,7 +68,9 @@ void Score::Render() const noexcept
 
 		for (int i = 0; i < Leaderboard.size(); i++)
 		{
+			[[gsl::suppress(bounds.4)]]
 			DrawText(Leaderboard[i].first.data(), 50, 140 + (i * 40), 40, YELLOW);
+			[[gsl::suppress(bounds.4)]]
 			DrawText(TextFormat("%i", Leaderboard[i].second), 350, 140 + (i * 40), 40, YELLOW);
 		}
 	}

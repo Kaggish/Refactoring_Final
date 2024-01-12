@@ -19,6 +19,6 @@ public:
 	bool highScore = false;
 
 	bool CheckNewHighScore() const noexcept;
-	void Update() noexcept;
+	void Update();
 	void Render() const noexcept;
 };
