@@ -10,5 +10,5 @@ void Alien::Update() noexcept
 
 void Alien::Render(Texture2D texture) const noexcept
 {
-	DrawTexture(texture, static_cast<int>(position.x), static_cast<int>(position.y), COLOR);
+	DrawTextureV(texture, {position.x - RADIUS, position.y - RADIUS}, COLOR);
 }

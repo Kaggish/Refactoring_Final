@@ -8,7 +8,7 @@ class Alien
 
 public:
 	Vector2 position = { 0, 0 };
-	static constexpr float RADIUS = 30;
+	static constexpr float RADIUS = 50;
 
 	bool active = true;
 	bool moveRight = true;
