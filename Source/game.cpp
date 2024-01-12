@@ -192,7 +192,7 @@ bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineSta
 	}
 
 	const auto A = lineStart;
-	const auto	B = lineEnd;
+	const auto B = lineEnd;
 	const auto C = circlePos;
 	const float length = Vector2Distance(A, B);
 	const float dotP = Vector2DotProduct(Vector2Subtract(C, A), Vector2Subtract(B, A)) / std::powf(length, 2);
