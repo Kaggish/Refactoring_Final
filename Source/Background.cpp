@@ -1,4 +1,7 @@
 #include "BackGround.hpp"
+#include "Helper.hpp"
+
+using namespace Helper;
 
 Star::Star(Vector2 Position, float Size) noexcept
 	:position(Position)
@@ -7,15 +10,15 @@ Star::Star(Vector2 Position, float Size) noexcept
 
 void Star::Render(float ScrollingOffset) const noexcept
 {
-	DrawCircle(static_cast<int>(position.x + (ScrollingOffset / size)), static_cast<int>(position.y), size, COLOR);
+	DrawCircleV({ position.x + (ScrollingOffset / size), position.y }, size, COLOR);
 }
 
 Background::Background() noexcept
 {
 	for (int i = 0; i < starAmmount; ++i)
 	{
-		Vector2 tmpPos = { static_cast<float>(GetRandomValue(-150, GetScreenWidth() + 150)), static_cast<float>(GetRandomValue(0, GetScreenHeight())) };
-		float tmpSize = static_cast<float>(GetRandomValue(1, 8) / 2);
+		Vector2 tmpPos = { GetRandomValueF(-150, GetScreenWidth() + 150), GetRandomValueF(0, GetScreenHeight()) };
+		float tmpSize = GetRandomValueF(1, 8) / 2;
 
 		stars.emplace_back(tmpPos, tmpSize);
 	}

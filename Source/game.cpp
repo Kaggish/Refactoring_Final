@@ -3,7 +3,7 @@
 
 float lineLength(Vector2 A, Vector2 B) noexcept
 {
-	return sqrtf(static_cast<float>(pow(B.x - A.x, 2) + pow(B.y - A.y, 2)));
+	return sqrtf(powf(B.x - A.x, 2) + powf(B.y - A.y, 2));
 }
 
 void Game::End() noexcept
@@ -86,7 +86,7 @@ void Game::Update()
 		if (IsKeyPressed(KEY_SPACE))
 		{
 			const float window_height = static_cast<float>(GetScreenHeight());
-			Vector2 tmpPos = { static_cast<float>(player.position.x - (player.RADIUS / 2.0f)), window_height - 130 }; //TODO: magical value
+			Vector2 tmpPos = { player.position.x - player.RADIUS / 2.0f, window_height - 130.0f }; //TODO: magical value
 			constexpr auto SPEED = 15;
 			PlayerProjectiles.emplace_back(tmpPos, SPEED);
 		}
@@ -176,10 +176,10 @@ void Game::SpawnAliens()
 
 void Game::SpawnWalls()
 {
-	const int wall_distance = GetScreenWidth() / (wallCount + 1);
+	const float wall_distance = GetScreenWidthF() / (wallCount + 1);
 	for (int i = 0; i < wallCount; i++)
 	{
-		Vector2 tmpPos = { static_cast<float>(wall_distance) * (i + 1), static_cast<float>(GetScreenHeight()) - 250.0f };			
+		Vector2 tmpPos = { wall_distance * (i + 1.0f), GetScreenHeightF() - 250.0f };			
 		Walls.emplace_back(tmpPos);
 	}
 }
@@ -216,7 +216,7 @@ void Game::BulletVsPlayer()
 {
 	for (auto& projectile : EnemyProjectiles)
 	{
-		if (CheckCollision({ static_cast<float>(player.position.x), GetScreenHeight() - player.player_base_height },
+		if (CheckCollision({ player.position.x, GetScreenHeightF() - player.player_base_height },
 			static_cast<float>(player.RADIUS),
 			projectile.lineStart,
 			projectile.lineEnd))

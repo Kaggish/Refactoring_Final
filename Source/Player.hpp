@@ -1,10 +1,8 @@
 #pragma once
 #include "raylib.h"
+#include "Helper.hpp"
 
-inline const float GetScreenHeightF() noexcept
-{
-	return static_cast<float>(GetScreenHeight());
-}
+using namespace Helper;
 
 class Player
 {
@@ -14,7 +12,7 @@ public:
 
 	const float player_base_height = 70.0f;
 	int lives = 3;
-	Vector2 position{ static_cast<float>(GetScreenWidth() / 2), GetScreenHeightF() - player_base_height};
+	Vector2 position{ GetScreenWidthF() / 2.0f, GetScreenHeightF() - player_base_height};
 	const float RADIUS = 50.0f;
 	int direction = 0;
 	int activeTexture = 0;
