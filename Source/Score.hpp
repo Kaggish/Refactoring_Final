@@ -6,7 +6,6 @@
 class Score
 {
 	std::string name = {};
-	int letterCount = 0;
 
 	Rectangle textBox = { 600, 500, 225, 50 };
 

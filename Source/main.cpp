@@ -3,16 +3,17 @@
 #include "Window.hpp"
 #include <print>
 
+//TODO: Make use of the RAYLIB rec for collision
+//TODO: Make use of the collision functions in RAYLIB
+
 int main(void)
 {
 	constexpr int screenWidth = 1920;
 	constexpr int screenHeight = 1080;
-	try {
-		Window window(screenWidth, screenHeight, "SPACE INVADERS");
-		Game game;
-		Resources resources;
 
-		SetTargetFPS(60);
+	try {
+		Window window(screenWidth, screenHeight, "SPACE INVADERS", 60);
+		Game game;
 
 		while (!WindowShouldClose())
 		{

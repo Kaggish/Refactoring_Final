@@ -7,11 +7,9 @@ void Score::Update()
 	{
 		const int key = GetCharPressed();
 
-		if (key > 0)
+		if (key > 32 && key < 127)
 		{
-			[[gsl::suppress(type.1)]]
 			name.push_back(static_cast<char>(key));
-			letterCount++;
 		}
 
 		if (IsKeyPressed(KEY_BACKSPACE) && name.size() > 0)
@@ -19,11 +17,10 @@ void Score::Update()
 			name.pop_back();
 		}
 
-		if (letterCount > 0 && letterCount < 9 && IsKeyPressed(KEY_ENTER))
+		if (name.size() > 0 && name.size() < 9 && IsKeyPressed(KEY_ENTER))
 		{
 			InsertNewHighScore();
 			name.clear();
-			letterCount = 0;
 			highScore = false;
 		}
 	}
@@ -43,9 +40,9 @@ void Score::Render() const noexcept
 
 		DrawText(name.data(), static_cast<int>(textBox.x) + 5, static_cast<int>(textBox.y) + 8, 40, MAROON);
 
-		DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, name.capacity()), 600, 600, 20, YELLOW);
+		DrawText(TextFormat("INPUT CHARS: %i/%i", name.size(), name.capacity()), 600, 600, 20, YELLOW);
 
-		if (letterCount < name.capacity())
+		if (name.size() < 9)
 		{
 			DrawText("_", static_cast<int>(textBox.x) + 8 + MeasureText(name.data(), 40), static_cast<int>(textBox.y) + 12, 40, MAROON);
 		}
@@ -54,7 +51,7 @@ void Score::Render() const noexcept
 			DrawText("Press BACKSPACE to delete chars...", 600, 650, 20, YELLOW);
 		}
 
-		if (letterCount > 0 && letterCount < name.capacity())
+		if (name.size() > 0 && name.size() < 9)
 		{
 			DrawText("PRESS ENTER TO CONTINUE", 600, 800, 40, YELLOW);
 		}
@@ -68,9 +65,7 @@ void Score::Render() const noexcept
 
 		for (int i = 0; i < Leaderboard.size(); i++)
 		{
-			[[gsl::suppress(bounds.4)]]
 			DrawText(Leaderboard[i].first.data(), 50, 140 + (i * 40), 40, YELLOW);
-			[[gsl::suppress(bounds.4)]]
 			DrawText(TextFormat("%i", Leaderboard[i].second), 350, 140 + (i * 40), 40, YELLOW);
 		}
 	}

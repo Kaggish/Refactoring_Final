@@ -6,7 +6,7 @@
 class Window
 {
 public:
-	Window(const int screenWidth, const int screenHeight, std::string_view title) noexcept;
+	Window(const int screenWidth, const int screenHeight, std::string_view title, unsigned int FPS) noexcept;
 	~Window();
 
 	Window(const Window& other) = delete;

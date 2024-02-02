@@ -37,42 +37,14 @@ void Game::Update()
 
 	case State::RUNNING:
 
-		if (player.lives < 1)
-		{
-			return End();
-		}
-
-		if (IsKeyReleased(KEY_Q))
-		{
-			return End();
-		}
+		IsGameEnding();
 
 		if (Aliens.size() < 1)
 		{
 			SpawnAliens();
 		}
 
-		player.Update();
-		for (auto& alien : Aliens)
-		{
-			alien.Update();
-
-			if (alien.position.y > GetScreenHeight() - player.player_base_height)
-			{
-				return End();
-			}
-		}
-
-		for (auto& projectile : PlayerProjectiles)
-		{
-			projectile.Update();
-		}
-
-		for (auto& projectile : EnemyProjectiles)
-		{
-			projectile.Update();
-		}
-
+		UpdateAll();
 		
 		cornerPos = { 0, static_cast<float>(player.player_base_height) };
 		offset = lineLength(player.position, cornerPos) * -1;
@@ -83,25 +55,8 @@ void Game::Update()
 		BulletVsAlien();
 		BulletVsPlayer();
 
-		if (IsKeyPressed(KEY_SPACE))
-		{
-			const float window_height = static_cast<float>(GetScreenHeight());
-			Vector2 tmpPos = { player.position.x - player.RADIUS / 2.0f, window_height - 130.0f }; //TODO: magical value
-			constexpr auto SPEED = 15;
-			PlayerProjectiles.emplace_back(tmpPos, SPEED);
-		}
-
-		if (shootTimer > 59)
-		{
-			const int randomAlienIndex = rand() % Aliens.size();
-			[[gsl::suppress(bounds.4)]]
-			Vector2 tmpPos = { Aliens[randomAlienIndex].position.x, Aliens[randomAlienIndex].position.y };
-			constexpr auto SPEED = -15;
-			EnemyProjectiles.emplace_back(tmpPos, SPEED);
-			shootTimer = 0;
-		}
-
-		shootTimer += 1;
+		PlayerShouldShoot();
+		AlienShouldShoot();
 
 		DeleteDeadEntities();
 
@@ -127,33 +82,8 @@ void Game::Render() const noexcept
 
 		break;
 	case State::RUNNING:
-		background.Render();
-	
-		DrawText(TextFormat("Score: %i", score.scorepoints), 50, 20, 40, YELLOW);
-		DrawText(TextFormat("Lives: %i", player.lives), 50, 70, 40, YELLOW);
 
-		[[gsl::suppress(bounds.4)]]
-		player.Render(resources.shipTextures[player.activeTexture].get());
-
-		for (const auto& projectile : PlayerProjectiles)
-		{
-			projectile.Render(resources.laserTexture.get());
-		}
-
-		for (const auto& projectile : EnemyProjectiles)
-		{
-			projectile.Render(resources.laserTexture.get());
-		}
-
-		for (const auto& wall : Walls)
-		{
-			wall.Render(resources.barrierTexture.get());
-		}
-
-		for (const auto& alien : Aliens)
-		{
-			alien.Render(resources.alienTexture.get());
-		}
+		RenderAll();
 
 		break;
 	case State::ENDSCREEN:
@@ -177,6 +107,7 @@ void Game::SpawnAliens()
 void Game::SpawnWalls()
 {
 	const float wall_distance = GetScreenWidthF() / (wallCount + 1);
+	Walls.reserve(wallCount);
 	for (int i = 0; i < wallCount; i++)
 	{
 		Vector2 tmpPos = { wall_distance * (i + 1.0f), GetScreenHeightF() - 250.0f };			
@@ -184,7 +115,28 @@ void Game::SpawnWalls()
 	}
 }
 
-bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineStart, Vector2 lineEnd)
+void Game::IsGameEnding() noexcept
+{
+	if (player.lives < 1)
+	{
+		return End();
+	}
+
+	if (IsKeyReleased(KEY_Q))
+	{
+		return End();
+	}
+
+	for (auto& alien : Aliens)
+	{
+		if (alien.position.y > GetScreenHeight() - player.player_base_height)
+		{
+			return End();
+		}
+	}
+}
+
+bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineStart, Vector2 lineEnd) //TODO: Remove this
 {
 	if (CheckCollisionPointCircle(lineStart, circlePos, circleRadius) || CheckCollisionPointCircle(lineEnd, circlePos, circleRadius)) 
 	{ 
@@ -198,7 +150,6 @@ bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineSta
 	const float dotP = Vector2DotProduct(Vector2Subtract(C, A), Vector2Subtract(B, A)) / std::powf(length, 2);
 	const float closestX = A.x + dotP * (B.x - A.x), closestY = A.y + dotP * (B.y - A.y);
 	
-	[[gsl::suppress(con.5)]]
 	const float buffer = 0.1f;
 	const float closeToStart = Vector2Distance(A, { closestX, closestY });
 	const float closeToEnd = Vector2Distance(B, { closestX, closestY });
@@ -223,6 +174,7 @@ void Game::BulletVsPlayer()
 		{
 			projectile.active = false;
 			player.lives -= 1;
+			return;
 		}
 	}
 }
@@ -238,6 +190,7 @@ void Game::BulletVsAlien()
 				projectile.active = false;
 				alien.active = false;
 				score.scorepoints += 100;
+				return;
 			}
 		}
 	}
@@ -257,6 +210,7 @@ void Game::PlayerBulletVsWall()
 				{
 					wall.active = false;
 				}
+				return;
 			}
 		}
 	}
@@ -276,6 +230,7 @@ void Game::EnemyBulletVsWall()
 				{
 					wall.active = false;
 				}
+				return;
 			}
 		}
 	}
@@ -288,4 +243,77 @@ void Game::DeleteDeadEntities()
 	std::erase_if(EnemyProjectiles, isDead);
 	std::erase_if(Aliens, isDead);
 	std::erase_if(Walls, isDead);
+}
+
+void Game::AlienShouldShoot() noexcept
+{
+	if (shootTimer > 59)
+	{
+		const int randomAlienIndex = rand() % Aliens.size();
+		[[gsl::suppress(bounds.4)]]
+		Vector2 tmpPos = { Aliens[randomAlienIndex].position.x, Aliens[randomAlienIndex].position.y };
+		constexpr auto SPEED = -15;
+		EnemyProjectiles.emplace_back(tmpPos, SPEED);
+		shootTimer = 0;
+	}
+	shootTimer += 1;
+}
+
+void Game::PlayerShouldShoot() noexcept
+{
+	if (IsKeyPressed(KEY_SPACE))
+	{
+		const float window_height = static_cast<float>(GetScreenHeight());
+		Vector2 tmpPos = { player.position.x - player.RADIUS / 2.0f, window_height - 130.0f }; //TODO: magical value
+		constexpr auto SPEED = 15;
+		PlayerProjectiles.emplace_back(tmpPos, SPEED);
+	}
+}
+
+void Game::RenderAll() const noexcept
+{
+	background.Render();
+
+	DrawText(TextFormat("Score: %i", score.scorepoints), 50, 20, 40, YELLOW);
+	DrawText(TextFormat("Lives: %i", player.lives), 50, 70, 40, YELLOW);
+
+	player.Render(resources.shipTextures[player.activeTexture].get());
+	for (const auto& projectile : PlayerProjectiles)
+	{
+		projectile.Render(resources.laserTexture.get());
+	}
+
+	for (const auto& projectile : EnemyProjectiles)
+	{
+		projectile.Render(resources.laserTexture.get());
+	}
+
+	for (const auto& wall : Walls)
+	{
+		wall.Render(resources.barrierTexture.get());
+	}
+
+	for (const auto& alien : Aliens)
+	{
+		alien.Render(resources.alienTexture.get());
+	}
+}
+
+void Game::UpdateAll() noexcept
+{
+	player.Update();
+	for (auto& alien : Aliens)
+	{
+		alien.Update();
+	}
+
+	for (auto& projectile : PlayerProjectiles)
+	{
+		projectile.Update();
+	}
+
+	for (auto& projectile : EnemyProjectiles)
+	{
+		projectile.Update();
+	}
 }

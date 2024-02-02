@@ -11,7 +11,6 @@
 
 #pragma warning(pop)
 
-#include "raylib.h"
 #include "Background.hpp"
 #include "Resources.hpp"
 #include "Player.hpp"
@@ -70,6 +69,8 @@ class Game
 	void SpawnAliens();
 	void SpawnWalls();
 
+	void IsGameEnding() noexcept;
+
 	bool CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineTop, Vector2 lineBottom);
 
 	void BulletVsPlayer();
@@ -77,6 +78,12 @@ class Game
 	void PlayerBulletVsWall();
 	void EnemyBulletVsWall();
 	void DeleteDeadEntities();
+
+	void AlienShouldShoot() noexcept;
+	void PlayerShouldShoot() noexcept;
+
+	void RenderAll() const noexcept;
+	void UpdateAll() noexcept;
 
 public:
 	void Input() noexcept;

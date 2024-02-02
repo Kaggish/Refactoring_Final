@@ -1,17 +1,9 @@
 #include "Window.hpp"
-#include <print>
 
-Window::Window(const int screenWidth, const int screenHeight, std::string_view title) noexcept
+Window::Window(const int screenWidth, const int screenHeight, std::string_view title, unsigned int FPS) noexcept
 {
-	try
-	{
-		InitWindow(screenWidth, screenHeight, title.data());
-	}
-	catch(const std::runtime_error& e)
-	{
-		[[gsl::suppress(f.6)]]
-		std::println("Error: Could not create window", e.what());
-	}
+	InitWindow(screenWidth, screenHeight, title.data());
+	SetTargetFPS(FPS);
 }
 
 Window::~Window()
