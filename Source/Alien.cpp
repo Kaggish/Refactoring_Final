@@ -1,5 +1,10 @@
 #include "Alien.hpp"
 
+Rectangle Alien::HitBox() const noexcept
+{
+	return Rectangle();
+}
+
 void Alien::Update() noexcept
 {
 	position.x += (moveRight ? SPEED : -SPEED);

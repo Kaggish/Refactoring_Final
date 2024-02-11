@@ -9,5 +9,7 @@ public:
 	int health = 50;
 	bool active = true;
 	
+	Rectangle HitBox() const noexcept;
+
 	void Render(Texture2D texture) const noexcept;
 };

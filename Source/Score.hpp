@@ -15,6 +15,7 @@ class Score
 
 public:
 	int scorepoints = 0;
+	int letterCap = 9;
 	bool highScore = false;
 
 	bool CheckNewHighScore() const noexcept;

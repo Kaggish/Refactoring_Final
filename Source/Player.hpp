@@ -19,6 +19,7 @@ public:
 	float timer = 0;
 
 	float Boundaries() noexcept;
+	Rectangle HitBox() const noexcept;
 
 	void Input() noexcept;
 	void Update() noexcept;

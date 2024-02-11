@@ -1,7 +1,7 @@
 #include "raylib.h"
 #include "game.hpp"
 #include "Window.hpp"
-#include <print>
+#include <iostream>
 
 //TODO: Make use of the RAYLIB rec for collision
 //TODO: Make use of the collision functions in RAYLIB
@@ -27,7 +27,8 @@ int main(void)
 		}
 	}
 	catch (const std::runtime_error& e) {
-		std::println("Error: Game cannot run", e.what());
+		/*std::println("Error: Game cannot run", e.what());*/
+		std::cout << e.what() << std::endl;
 	}
 	return 0;
 }

@@ -7,6 +7,11 @@ Projectile::Projectile(Vector2 Position, int speed) noexcept
 	,lineEnd({position.x, 15.0f})
 {}
 
+Rectangle Projectile::HitBox() const noexcept
+{
+	return Rectangle();
+}
+
 void Projectile::Update() noexcept
 {
 	position.y -= SPEED;

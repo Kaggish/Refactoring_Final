@@ -1,5 +1,10 @@
 #include "Wall.hpp"
 
+Rectangle Wall::HitBox() const noexcept
+{
+	return Rectangle();
+}
+
 void Wall::Render(Texture2D texture) const noexcept
 {
 	static constexpr auto LABEL_OFFSET_X = 10;

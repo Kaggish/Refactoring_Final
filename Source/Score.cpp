@@ -17,7 +17,7 @@ void Score::Update()
 			name.pop_back();
 		}
 
-		if (name.size() > 0 && name.size() < 9 && IsKeyPressed(KEY_ENTER))
+		if (name.size() > 0 && name.size() < letterCap && IsKeyPressed(KEY_ENTER))
 		{
 			InsertNewHighScore();
 			name.clear();
@@ -42,7 +42,7 @@ void Score::Render() const noexcept
 
 		DrawText(TextFormat("INPUT CHARS: %i/%i", name.size(), name.capacity()), 600, 600, 20, YELLOW);
 
-		if (name.size() < 9)
+		if (name.size() < letterCap)
 		{
 			DrawText("_", static_cast<int>(textBox.x) + 8 + MeasureText(name.data(), 40), static_cast<int>(textBox.y) + 12, 40, MAROON);
 		}
@@ -51,7 +51,7 @@ void Score::Render() const noexcept
 			DrawText("Press BACKSPACE to delete chars...", 600, 650, 20, YELLOW);
 		}
 
-		if (name.size() > 0 && name.size() < 9)
+		if (name.size() > 0 && name.size() < letterCap)
 		{
 			DrawText("PRESS ENTER TO CONTINUE", 600, 800, 40, YELLOW);
 		}
@@ -78,11 +78,11 @@ bool Score::CheckNewHighScore() const noexcept
 
 bool Score::InsertNewHighScore()
 {
-	static constexpr auto isHigher = [&](auto& a, auto& b) { return a.second >= b.second; };
+	static constexpr auto isHigher = [](auto& a, auto& b) { return a.second >= b.second; };
 
+	Leaderboard.pop_back();
 	Leaderboard.push_back({ name, scorepoints });
 	std::ranges::sort(Leaderboard, isHigher);
-	Leaderboard.pop_back();
 
 	return true;
 }

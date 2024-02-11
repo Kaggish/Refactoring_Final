@@ -13,6 +13,8 @@ public:
 	bool active = true;
 	bool moveRight = true;
 
+	Rectangle HitBox() const noexcept;
+
 	void Update() noexcept;
 	void Render(Texture2D texture) const noexcept;
 };

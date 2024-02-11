@@ -5,6 +5,11 @@ float Player::Boundaries() noexcept
 	return position.x = (position.x < 0) ? 0 : (position.x > GetScreenWidth() - RADIUS) ? GetScreenWidth() - RADIUS : position.x;
 }
 
+Rectangle Player::HitBox() const noexcept
+{
+	return Rectangle();
+}
+
 void Player::Input() noexcept
 {
 	direction = 0;

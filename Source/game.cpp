@@ -136,33 +136,6 @@ void Game::IsGameEnding() noexcept
 	}
 }
 
-bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineStart, Vector2 lineEnd) //TODO: Remove this
-{
-	if (CheckCollisionPointCircle(lineStart, circlePos, circleRadius) || CheckCollisionPointCircle(lineEnd, circlePos, circleRadius)) 
-	{ 
-		return true;
-	}
-
-	const auto A = lineStart;
-	const auto B = lineEnd;
-	const auto C = circlePos;
-	const float length = Vector2Distance(A, B);
-	const float dotP = Vector2DotProduct(Vector2Subtract(C, A), Vector2Subtract(B, A)) / std::powf(length, 2);
-	const float closestX = A.x + dotP * (B.x - A.x), closestY = A.y + dotP * (B.y - A.y);
-	
-	const float buffer = 0.1f;
-	const float closeToStart = Vector2Distance(A, { closestX, closestY });
-	const float closeToEnd = Vector2Distance(B, { closestX, closestY });
-	const float closestLength = closeToStart + closeToEnd;
-
-	if (std::abs(closestLength - length) < buffer)
-	{
-		return Vector2Distance(C, { closestX, closestY }) < circleRadius;
-	}
-
-	return false;
-}
-
 void Game::BulletVsPlayer()
 {
 	for (auto& projectile : EnemyProjectiles)
@@ -243,6 +216,21 @@ void Game::DeleteDeadEntities()
 	std::erase_if(EnemyProjectiles, isDead);
 	std::erase_if(Aliens, isDead);
 	std::erase_if(Walls, isDead);
+}
+
+void Game::CollidesWithWalls(const Rectangle& rect)
+{
+
+}
+
+void Game::CollidesWithPlayer(const Rectangle& rect)
+{
+
+}
+
+void Game::CollidesWithAliens(const Rectangle& rect)
+{
+
 }
 
 void Game::AlienShouldShoot() noexcept

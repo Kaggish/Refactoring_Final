@@ -19,7 +19,6 @@
 #include "Projectile.hpp"
 #include "Score.hpp"
 #include <vector>
-#include <string>
 
 enum struct State
 {
@@ -71,13 +70,14 @@ class Game
 
 	void IsGameEnding() noexcept;
 
-	bool CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineTop, Vector2 lineBottom);
-
 	void BulletVsPlayer();
 	void BulletVsAlien();
 	void PlayerBulletVsWall();
 	void EnemyBulletVsWall();
 	void DeleteDeadEntities();
+	void CollidesWithWalls(const Rectangle& rect);
+	void CollidesWithPlayer(const Rectangle& rect);
+	void CollidesWithAliens(const Rectangle& rect);
 
 	void AlienShouldShoot() noexcept;
 	void PlayerShouldShoot() noexcept;
