@@ -5,10 +5,11 @@ class Alien
 {
 	static constexpr Color COLOR = WHITE;
 	static constexpr int SPEED = 2;
+	static constexpr float WIDTH = 200.0f;
+	static constexpr float HEIGHT = 200.0f;
 
 public:
 	Vector2 position = { 0, 0 };
-	static constexpr float RADIUS = 50;
 
 	bool active = true;
 	bool moveRight = true;

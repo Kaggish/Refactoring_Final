@@ -14,9 +14,9 @@ class Projectile
 public:
 	Projectile(Vector2 Position, int speed) noexcept;
 
-	Vector2 position = { 0,0 };
-	Vector2 lineStart = { 0, 0 };
-	Vector2 lineEnd = { 0, 0 };
+	Vector2 position = { 0, 0 };
+	static constexpr float WIDTH = 50.0f;
+	static constexpr float HEIGHT = 50.0f;
 
 	bool active = true;
 

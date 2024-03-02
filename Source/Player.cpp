@@ -7,7 +7,7 @@ float Player::Boundaries() noexcept
 
 Rectangle Player::HitBox() const noexcept
 {
-	return Rectangle();
+	return {position.x, position.y, WIDTH, HEIGHT};
 }
 
 void Player::Input() noexcept

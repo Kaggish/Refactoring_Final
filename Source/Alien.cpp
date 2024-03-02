@@ -2,7 +2,7 @@
 
 Rectangle Alien::HitBox() const noexcept
 {
-	return Rectangle();
+	return {position.x, position.y, WIDTH, HEIGHT};
 }
 
 void Alien::Update() noexcept
