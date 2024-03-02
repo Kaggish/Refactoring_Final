@@ -2,7 +2,7 @@
 
 float Player::Boundaries() noexcept
 {
-	return position.x = (position.x < 0) ? 0 : (position.x > GetScreenWidth() - RADIUS) ? GetScreenWidth() - RADIUS : position.x;
+	return position.x = (position.x < 0) ? 0 : (position.x > GetScreenWidth() - WIDTH) ? GetScreenWidth() - WIDTH : position.x;
 }
 
 Rectangle Player::HitBox() const noexcept
@@ -45,5 +45,5 @@ void Player::Update() noexcept
 
 void Player::Render(Texture2D texture) const noexcept
 {
-	DrawTextureV(texture, { position.x - RADIUS, position.y - RADIUS }, WHITE);
+	DrawTextureV(texture, { position.x, position.y }, WHITE);
 }

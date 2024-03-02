@@ -5,8 +5,8 @@ class Alien
 {
 	static constexpr Color COLOR = WHITE;
 	static constexpr int SPEED = 2;
-	static constexpr float WIDTH = 200.0f;
-	static constexpr float HEIGHT = 200.0f;
+	static constexpr float WIDTH = 94.0f;
+	static constexpr float HEIGHT = 54.0f;
 
 public:
 	Vector2 position = { 0, 0 };

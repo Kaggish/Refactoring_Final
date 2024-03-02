@@ -4,8 +4,8 @@
 class Wall
 {
 public:
-	static constexpr float WIDTH = 200.0f;
-	static constexpr float HEIGHT = 200.0f;
+	static constexpr int WIDTH = 164;
+	static constexpr int HEIGHT = 73;
 
 	Vector2 position = {};
 

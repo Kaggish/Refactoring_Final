@@ -3,21 +3,16 @@
 Projectile::Projectile(Vector2 Position, int speed) noexcept
 	:position(Position)
 	,SPEED(speed)
-	,lineStart({position.x , -15.0f})
-	,lineEnd({position.x, 15.0f})
 {}
 
 Rectangle Projectile::HitBox() const noexcept
 {
-	return Rectangle();
+	return {position.x, position.y, WIDTH, HEIGHT};
 }
 
 void Projectile::Update() noexcept
 {
 	position.y -= SPEED;
-
-	lineStart.y = position.y;
-	lineEnd.y = position.y;
 
 	if (position.y < 0 || position.y > 1500)
 	{
@@ -27,5 +22,6 @@ void Projectile::Update() noexcept
 
 void Projectile::Render(Texture2D texture) const noexcept
 {
-	DrawTextureV(texture, position, WHITE);
+	DrawTextureV(texture, { position.x, position.y }, WHITE);
+	DrawRectangleRec(HitBox(), RED);
 }

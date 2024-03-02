@@ -7,13 +7,13 @@ using namespace Helper;
 class Player
 {
 	static constexpr int SPEED = 7;
-	static constexpr float WIDTH = 100.0f;
-	static constexpr float HEIGHT = 100.0f;
 
 public:
 	float timer = 0;
+	static constexpr float HEIGHT = 97.0f;
+	static constexpr float WIDTH = 94.0f;
 
-	Vector2 position{ GetScreenWidthF() / 2.0f, GetScreenHeightF() - player_base_height};
+	Vector2 position{ GetScreenWidthF() / 2.0f, GetScreenHeightF() - HEIGHT};
 
 	int lives = 3;
 	int direction = 0;

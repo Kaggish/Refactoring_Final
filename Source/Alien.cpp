@@ -15,5 +15,5 @@ void Alien::Update() noexcept
 
 void Alien::Render(Texture2D texture) const noexcept
 {
-	DrawTextureV(texture, {position.x - RADIUS, position.y - RADIUS}, COLOR);
+	DrawTextureV(texture, {position.x, position.y}, COLOR);
 }

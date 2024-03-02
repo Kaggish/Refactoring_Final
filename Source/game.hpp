@@ -55,7 +55,7 @@ class Game
 	EntityPositioningData entityData;
 
 	std::vector<Projectile> PlayerProjectiles;
-	std::vector<Projectile> EnemyProjectiles;
+	std::vector<Projectile> AlienProjectiles;
 	std::vector<Wall> Walls;
 	std::vector<Alien> Aliens;
 
@@ -70,17 +70,16 @@ class Game
 
 	void IsGameEnding() noexcept;
 
-	void BulletVsPlayer();
-	void BulletVsAlien();
-	void PlayerBulletVsWall();
-	void EnemyBulletVsWall();
-	void DeleteDeadEntities();
-	void CollidesWithWalls(const Rectangle& rect);
-	void CollidesWithPlayer(const Rectangle& rect);
-	void CollidesWithAliens(const Rectangle& rect);
+	void PlayerBulletUpdate() noexcept;
+	void AlienBulletUpdate() noexcept;
 
-	void AlienShouldShoot() noexcept;
-	void PlayerShouldShoot() noexcept;
+	void DeleteDeadEntities();
+	bool CollidesWithWalls(const Rectangle& rect) noexcept;
+	bool CollidesWithPlayer(const Rectangle& rect) noexcept;
+	bool CollidesWithAliens(const Rectangle& rect) noexcept;
+
+	void AlienShoot() noexcept;
+	void PlayerShoot() noexcept;
 
 	void RenderAll() const noexcept;
 	void UpdateAll() noexcept;

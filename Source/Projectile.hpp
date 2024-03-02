@@ -15,7 +15,7 @@ public:
 	Projectile(Vector2 Position, int speed) noexcept;
 
 	Vector2 position = { 0, 0 };
-	static constexpr float WIDTH = 50.0f;
+	static constexpr float WIDTH = 7.0f;
 	static constexpr float HEIGHT = 50.0f;
 
 	bool active = true;

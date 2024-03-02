@@ -9,7 +9,7 @@ float lineLength(Vector2 A, Vector2 B) noexcept
 void Game::End() noexcept
 {
 	PlayerProjectiles.clear();
-	EnemyProjectiles.clear();
+	AlienProjectiles.clear();
 	Walls.clear();
 	Aliens.clear();
 	score.highScore = score.CheckNewHighScore();
@@ -46,17 +46,13 @@ void Game::Update()
 
 		UpdateAll();
 		
-		cornerPos = { 0, static_cast<float>(player.player_base_height) };
-		offset = lineLength(player.position, cornerPos) * -1;
-		background.Update(offset / 15);
+		background.Update(player.position.x / GetScreenWidthF());
 
-		PlayerBulletVsWall();
-		EnemyBulletVsWall();
-		BulletVsAlien();
-		BulletVsPlayer();
+		PlayerBulletUpdate();
+		AlienBulletUpdate();
 
-		PlayerShouldShoot();
-		AlienShouldShoot();
+		PlayerShoot();
+		AlienShoot();
 
 		DeleteDeadEntities();
 
@@ -129,82 +125,33 @@ void Game::IsGameEnding() noexcept
 
 	for (auto& alien : Aliens)
 	{
-		if (alien.position.y > GetScreenHeight() - player.player_base_height)
+		if (alien.position.y > GetScreenHeight() - player.HEIGHT)
 		{
 			return End();
 		}
 	}
 }
 
-void Game::BulletVsPlayer()
+void Game::PlayerBulletUpdate() noexcept
 {
-	for (auto& projectile : EnemyProjectiles)
+	for (auto& playerBullet : PlayerProjectiles)
 	{
-		if (CheckCollision({ player.position.x, GetScreenHeightF() - player.player_base_height },
-			static_cast<float>(player.RADIUS),
-			projectile.lineStart,
-			projectile.lineEnd))
+		playerBullet.Update();
+		if (CollidesWithAliens(playerBullet.HitBox()) || CollidesWithWalls(playerBullet.HitBox()))
 		{
-			projectile.active = false;
-			player.lives -= 1;
-			return;
+			playerBullet.active = false;
 		}
 	}
 }
 
-void Game::BulletVsAlien()
+void Game::AlienBulletUpdate() noexcept
 {
-	for (auto& projectile : PlayerProjectiles)
+	for (auto& alienBullet : AlienProjectiles)
 	{
-		for (auto& alien : Aliens)
+		alienBullet.Update();
+		if (CollidesWithPlayer(alienBullet.HitBox()) || CollidesWithWalls(alienBullet.HitBox()))
 		{
-			if (CheckCollision(alien.position, Alien::RADIUS, projectile.lineStart, projectile.lineEnd))
-			{
-				projectile.active = false;
-				alien.active = false;
-				score.scorepoints += 100;
-				return;
-			}
-		}
-	}
-}
-
-void Game::PlayerBulletVsWall()
-{
-	for (auto& projectile : PlayerProjectiles)
-	{
-		for (auto& wall : Walls)
-		{
-			if (CheckCollision(wall.position, Wall::RADIUS, projectile.lineStart, projectile.lineEnd))
-			{
-				projectile.active = false;
-				wall.health -= 1;
-				if (wall.health < 1)
-				{
-					wall.active = false;
-				}
-				return;
-			}
-		}
-	}
-}
-
-void Game::EnemyBulletVsWall()
-{
-	for (auto& projectile : EnemyProjectiles)
-	{
-		for (auto& wall : Walls)
-		{
-			if (CheckCollision(wall.position, Wall::RADIUS, projectile.lineStart, projectile.lineEnd))
-			{
-				projectile.active = false;
-				wall.health -= 1;
-				if (wall.health < 1)
-				{
-					wall.active = false;
-				}
-				return;
-			}
+			alienBullet.active = false;
 		}
 	}
 }
@@ -213,27 +160,54 @@ void Game::DeleteDeadEntities()
 {
 	static constexpr auto isDead = [](const auto& x) constexpr noexcept { return x.active == false; };
  	std::erase_if(PlayerProjectiles, isDead);
-	std::erase_if(EnemyProjectiles, isDead);
+	std::erase_if(AlienProjectiles, isDead);
 	std::erase_if(Aliens, isDead);
 	std::erase_if(Walls, isDead);
 }
-
-void Game::CollidesWithWalls(const Rectangle& rect)
+ 
+bool Game::CollidesWithWalls(const Rectangle& rect) noexcept
 {
-
+	for (auto& wall : Walls)
+	{
+		if (CheckCollisionRecs(wall.HitBox(), rect))
+		{
+			wall.health--;
+			if (wall.health < 1)
+			{
+				wall.active = false;
+				return true;
+			}
+			return true;
+		}
+	}
+	return false;
 }
 
-void Game::CollidesWithPlayer(const Rectangle& rect)
+bool Game::CollidesWithPlayer(const Rectangle& rect) noexcept
 {
-
+	if (CheckCollisionRecs(player.HitBox(), rect))
+	{
+		player.lives--;
+		return true;
+	}
+	return false;
 }
 
-void Game::CollidesWithAliens(const Rectangle& rect)
+bool Game::CollidesWithAliens(const Rectangle& rect) noexcept
 {
-
+	for (auto& alien : Aliens)
+	{
+		if (CheckCollisionRecs(alien.HitBox(), rect))
+		{
+			alien.active = false;
+			score.scorepoints += 100;
+			return true;
+		}
+	}
+	return false;
 }
 
-void Game::AlienShouldShoot() noexcept
+void Game::AlienShoot() noexcept
 {
 	if (shootTimer > 59)
 	{
@@ -241,18 +215,18 @@ void Game::AlienShouldShoot() noexcept
 		[[gsl::suppress(bounds.4)]]
 		Vector2 tmpPos = { Aliens[randomAlienIndex].position.x, Aliens[randomAlienIndex].position.y };
 		constexpr auto SPEED = -15;
-		EnemyProjectiles.emplace_back(tmpPos, SPEED);
+		AlienProjectiles.emplace_back(tmpPos, SPEED);
 		shootTimer = 0;
 	}
 	shootTimer += 1;
 }
 
-void Game::PlayerShouldShoot() noexcept
+void Game::PlayerShoot() noexcept
 {
 	if (IsKeyPressed(KEY_SPACE))
 	{
 		const float window_height = static_cast<float>(GetScreenHeight());
-		Vector2 tmpPos = { player.position.x - player.RADIUS / 2.0f, window_height - 130.0f }; //TODO: magical value
+		Vector2 tmpPos = { player.position.x, window_height - 130.0f }; //TODO: magical value
 		constexpr auto SPEED = 15;
 		PlayerProjectiles.emplace_back(tmpPos, SPEED);
 	}
@@ -271,7 +245,7 @@ void Game::RenderAll() const noexcept
 		projectile.Render(resources.laserTexture.get());
 	}
 
-	for (const auto& projectile : EnemyProjectiles)
+	for (const auto& projectile : AlienProjectiles)
 	{
 		projectile.Render(resources.laserTexture.get());
 	}
@@ -293,15 +267,5 @@ void Game::UpdateAll() noexcept
 	for (auto& alien : Aliens)
 	{
 		alien.Update();
-	}
-
-	for (auto& projectile : PlayerProjectiles)
-	{
-		projectile.Update();
-	}
-
-	for (auto& projectile : EnemyProjectiles)
-	{
-		projectile.Update();
 	}
 }
